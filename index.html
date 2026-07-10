@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ENERGYMAP · 전력·에너지 완전정복</title>
+<meta name="theme-color" content="#0d1a0d"/>
+<style>
+:root{
+  --bg:#0a1628;--surface:#1a2a1a;--surface2:#243324;
+  --accent:#f59e0b;--accent2:#ef4444;--accent3:#22c55e;
+  --gold:#fbbf24;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --border:#2d4a2d;--radius:12px;--tab-h:56px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
+.header{background:var(--surface);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:18px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.header-right{font-size:11px;color:var(--text3);text-align:right;line-height:1.4}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:61px;z-index:99}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:60px;padding:0 4px;height:var(--tab-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);font-size:11px;font-weight:500;transition:all .2s;white-space:nowrap}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-icon{font-size:18px}
+.content{height:calc(100vh - 61px - 56px);overflow:hidden}
+.section{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:40px}
+.section.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:0 16px 12px}
+.card-title{font-size:15px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge-orange{background:rgba(245,158,11,.15);color:#f59e0b}
+.badge-red{background:rgba(239,68,68,.15);color:#ef4444}
+.badge-green{background:rgba(34,197,94,.15);color:#22c55e}
+.badge-blue{background:rgba(59,130,246,.15);color:#3b82f6}
+.badge-purple{background:rgba(168,85,247,.15);color:#a855f7}
+.badge-cyan{background:rgba(6,182,212,.15);color:#06b6d4}
+.sec-title{font-size:13px;font-weight:700;color:var(--text3);padding:16px 16px 8px;text-transform:uppercase;letter-spacing:.5px}
+.step-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:0 16px 10px;overflow:hidden;cursor:pointer}
+.step-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.step-title{font-size:14px;font-weight:700;flex:1}
+.step-arrow{font-size:12px;color:var(--text3);transition:.2s}
+.step-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.step-item.open .step-body{display:block}
+.step-item.open .step-arrow{transform:rotate(90deg)}
+.step-body p{font-size:13px;color:var(--text2);line-height:1.7;margin-top:12px}
+.step-body .kw{color:#f59e0b;font-weight:600}
+.step-body .hl{background:rgba(245,158,11,.08);border-radius:4px;padding:8px 12px;margin-top:10px;font-size:13px;color:var(--text);border-left:3px solid #f59e0b}
+.gen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 12px}
+.gen-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer}
+.gen-card:active{opacity:.7}
+.gen-icon{font-size:28px;margin-bottom:8px}
+.gen-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.gen-desc{font-size:11px;color:var(--text3);line-height:1.4}
+.gen-tags{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.company-list{padding:0 16px}
+.company-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer}
+.company-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.company-left{display:flex;align-items:center;gap:10px}
+.company-flag{font-size:18px}
+.company-name{font-size:14px;font-weight:700}
+.company-ticker{font-size:11px;color:var(--text3);margin-top:1px}
+.company-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
+.company-item.open .company-body{display:block}
+.company-desc{font-size:13px;color:var(--text2);line-height:1.65;margin-top:10px}
+.company-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.search-wrap{padding:12px 16px;position:sticky;top:117px;background:var(--bg);z-index:10}
+.search-box{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;outline:none}
+.search-box::placeholder{color:var(--text3)}
+.filter-wrap{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px 12px}
+.filter-wrap::-webkit-scrollbar{display:none}
+.filter-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;transition:.2s}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.term-list{padding:0 16px}
+.term-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer}
+.term-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.term-name{font-size:14px;font-weight:700}
+.term-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
+.term-def{font-size:13px;color:var(--text2);line-height:1.7;margin-top:10px}
+.term-item.open .term-body{display:block}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:150;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:24px;-webkit-overflow-scrolling:touch}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:4px}
+.modal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.modal-body{font-size:14px;color:var(--text2);line-height:1.8}
+.modal-related{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.modal-related-title{font-size:12px;color:var(--text3);margin-bottom:8px}
+.modal-tag{font-size:12px;padding:4px 10px;border-radius:20px;background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer;display:inline-block;margin:3px}
+.empty{text-align:center;padding:40px;color:var(--text3);font-size:14px}
+.ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+.ob-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:360px;width:100%;text-align:center}
+.ob-btn{width:100%;padding:14px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+.by-tag{font-size:10px;color:var(--text3);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="ob-overlay" id="ob">
+  <div class="ob-card">
+    <div style="font-size:48px;margin-bottom:12px">⚡</div>
+    <div style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">ENERGYMAP</div>
+    <div style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:20px">전력·신재생에너지 완전정복<br>📈 매일 MVP 에너지 종목 · 뉴스 업데이트<br>기초 8단계 · 기업 33개 · 용어 77개</div>
+    <button class="ob-btn" onclick="document.getElementById('ob').style.display='none'">시작하기</button>
+    <div class="by-tag">by UNO_DEYA · 전력·에너지 학습 앱</div>
+  </div>
+</div>
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">ENERGYMAP</div>
+      <div class="logo-sub">전력·신재생에너지</div>
+    </div>
+  </div>
+  <div class="header-right">by UNO_DEYA<br>에너지 학습</div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('today')"><div class="tab-icon">📈</div>투데이</div>
+  <div class="tab" onclick="switchTab('basic')"><div class="tab-icon">⚡</div>기초</div>
+  <div class="tab" onclick="switchTab('gen')"><div class="tab-icon">🏭</div>발전</div>
+  <div class="tab" onclick="switchTab('renew')"><div class="tab-icon">🌱</div>신재생</div>
+  <div class="tab" onclick="switchTab('company')"><div class="tab-icon">🏢</div>기업</div>
+  <div class="tab" onclick="switchTab('terms')"><div class="tab-icon">📚</div>용어</div>
+</div>
+<div class="content">
+
+<!-- ═══ 투데이탭 ═══ -->
+<div class="section active" id="sec-today">
+  <div id="todayWrap"><div class="empty">📡 데이터 불러오는 중...</div></div>
+</div>
+
+<!-- ═══ 기초탭 ═══ -->
+<div class="section" id="sec-basic">
+  <div class="sec-title">⚡ 전력·에너지 기초 — 6단계 완전정복</div>
+  <div id="step-list"></div>
+</div>
+
+<!-- ═══ 발전탭 ═══ -->
+<div class="section" id="sec-gen">
+  <div class="sec-title">🏭 발전 방식 비교</div>
+  <div class="gen-grid" id="gen-grid"></div>
+  <div class="sec-title">📊 발전 방식 핵심 비교</div>
+  <div class="card">
+    <div class="card-title">🔥 탄소 배출량 비교 (g CO₂/kWh)</div>
+    <div class="card-desc">
+      ⚫ <strong>석탄</strong>: 820g — 가장 높음<br>
+      🔵 <strong>LNG(가스)</strong>: 490g — 석탄의 절반<br>
+      🌊 <strong>수력</strong>: 4g — 거의 없음<br>
+      🌞 <strong>태양광</strong>: 6g — 거의 없음<br>
+      ⚛️ <strong>원자력</strong>: 12g — 거의 없음<br>
+      💨 <strong>풍력</strong>: 11g — 거의 없음
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚡ 설비이용률 비교</div>
+    <div class="card-desc">
+      설비이용률 = 실제 발전량 ÷ 이론 최대 발전량<br><br>
+      ⚛️ <strong>원자력</strong>: 약 85~90% (가장 높음)<br>
+      🔥 <strong>석탄·가스</strong>: 약 60~80%<br>
+      🌊 <strong>수력</strong>: 약 30~50%<br>
+      🌞 <strong>태양광</strong>: 약 15~20% (한국 기준)<br>
+      💨 <strong>풍력</strong>: 약 25~40%<br><br>
+      💡 태양광·풍력이 낮은 이유 = 간헐성 (날씨 의존)
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">💰 발전단가 비교 (원/kWh, 한국 기준)</div>
+    <div class="card-desc">
+      ⚛️ <strong>원자력</strong>: 약 50~70원 (가장 저렴)<br>
+      🌊 <strong>수력</strong>: 약 80~120원<br>
+      🔥 <strong>LNG</strong>: 약 150~200원<br>
+      🌞 <strong>태양광</strong>: 약 100~150원 (가격 하락 중)<br>
+      💨 <strong>해상풍력</strong>: 약 150~250원<br><br>
+      📉 태양광 발전단가는 10년간 90% 이상 하락!
+    </div>
+  </div>
+  <div class="sec-title">💰 투자 관점</div>
+  <div class="card" style="border-color:rgba(245,158,11,.4)">
+    <div class="card-title">💰 발전 방식별 투자 지도</div>
+    <div class="card-desc">
+      ⚛️ <strong>원전</strong> — 르네상스 진행형. AI 전력 수요 + 무탄소 24시간 전원은 원전뿐 → 두산에너빌리티(주기기)·비에이치아이(보조기기)·美 CEG·VST(운영사)<br><br>
+      🔵 <strong>LNG</strong> — 석탄→신재생 사이의 브릿지. 가스터빈 슬롯이 2028년까지 매진(GE버노바) → 생각보다 오래 가는 과도기 승자<br><br>
+      ⚫ <strong>석탄</strong> — 좌초자산화 진행. 신규 투자 대상 아님. 암모니아 혼소로 수명 연장 시도 중<br><br>
+      🌞💨 <strong>신재생</strong> — 발전사보다 <strong>밸류체인(기자재·인프라)</strong>이 유리: 타워·케이블·인버터·ESS<br><br>
+      <span class="badge badge-orange">핵심</span> 발전소를 직접 짓는 회사보다, 모든 발전소에 <strong>장비를 파는 회사</strong>가 먼저 돈을 법니다 — 골드러시의 청바지 장수 전략!
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 신재생탭 ═══ -->
+<div class="section" id="sec-renew">
+  <div class="sec-title">🌱 신재생에너지 분류</div>
+  <div class="gen-grid">
+    <div class="gen-card" onclick="showModal('solar')">
+      <div class="gen-icon">☀️</div>
+      <div class="gen-name">태양광·태양열</div>
+      <div class="gen-desc">실리콘 반도체로 빛→전기</div>
+      <div class="gen-tags"><span class="badge badge-orange">간헐성</span><span class="badge badge-green">무탄소</span></div>
+    </div>
+    <div class="gen-card" onclick="showModal('wind')">
+      <div class="gen-icon">💨</div>
+      <div class="gen-name">풍력</div>
+      <div class="gen-desc">바람→블레이드 회전→전기</div>
+      <div class="gen-tags"><span class="badge badge-blue">해상유망</span><span class="badge badge-green">무탄소</span></div>
+    </div>
+    <div class="gen-card" onclick="showModal('hydrogen')">
+      <div class="gen-icon">💧</div>
+      <div class="gen-name">수소</div>
+      <div class="gen-desc">그린수소·연료전지·V2G</div>
+      <div class="gen-tags"><span class="badge badge-cyan">미래연료</span><span class="badge badge-orange">비용과제</span></div>
+    </div>
+    <div class="gen-card" onclick="showModal('battery')">
+      <div class="gen-icon">🔋</div>
+      <div class="gen-name">ESS·배터리</div>
+      <div class="gen-desc">에너지 저장→간헐성 해결</div>
+      <div class="gen-tags"><span class="badge badge-purple">핵심솔루션</span></div>
+    </div>
+    <div class="gen-card" onclick="showModal('nuclear')">
+      <div class="gen-icon">⚛️</div>
+      <div class="gen-name">원자력·SMR</div>
+      <div class="gen-desc">핵분열 열→터빈→전기</div>
+      <div class="gen-tags"><span class="badge badge-red">저탄소</span><span class="badge badge-orange">안정기저</span></div>
+    </div>
+    <div class="gen-card" onclick="showModal('smart')">
+      <div class="gen-icon">🔌</div>
+      <div class="gen-name">스마트그리드</div>
+      <div class="gen-desc">전력망+ICT=지능형 관리</div>
+      <div class="gen-tags"><span class="badge badge-cyan">AI연결</span><span class="badge badge-green">효율화</span></div>
+    </div>
+  </div>
+  <div class="sec-title">🎯 핵심 개념</div>
+  <div class="card">
+    <div class="card-title">🔄 에너지 전환 3대 병목</div>
+    <div class="card-desc">
+      <span class="badge badge-red">①</span> <strong>간헐성</strong> — 날씨에 따라 발전량 변동 → ESS로 해결<br><br>
+      <span class="badge badge-orange">②</span> <strong>전력 인프라</strong> — 변압기·케이블 납기 3~4년 지연 → HD현대일렉·LS전선 수혜<br><br>
+      <span class="badge badge-purple">③</span> <strong>계통 연결</strong> — 신재생 급증 시 전력망 불안정 → 스마트그리드 필수
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🌍 RE100이란?</div>
+    <div class="card-desc">
+      기업이 사용하는 전력 <strong>100%를 재생에너지</strong>로 조달하겠다는 글로벌 캠페인<br><br>
+      애플·구글·MS·삼성전자 등 350개+ 참여<br><br>
+      <span class="badge badge-red">CBAM</span> 유럽 탄소국경세 — RE100 미달성 시 수출 제품에 탄소세 부과<br>
+      → 한국 제조업 직격탄 → RE100 달성 필수!
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">💡 탄소중립 2050 로드맵</div>
+    <div class="card-desc">
+      한국 목표: 2030년 2018년 대비 <strong>40% 감축</strong> → 2050년 <strong>넷제로</strong><br><br>
+      ① 석탄 발전 단계적 폐지<br>
+      ② 신재생에너지 비중 30%↑ (현재 약 10%)<br>
+      ③ 전기차 보급 확대<br>
+      ④ CCUS (탄소 포집·저장) 기술 상용화
+    </div>
+  </div>
+  <div class="sec-title">💰 투자 관점</div>
+  <div class="card" style="border-color:rgba(34,197,94,.4)">
+    <div class="card-title">💰 에너지 전환 투자 3대 축</div>
+    <div class="card-desc">
+      <span class="badge badge-blue">①</span> <strong>인프라 (현재진행형)</strong><br>
+      변압기·케이블·배전 — 납기 병목으로 이미 돈 버는 중<br>
+      → HD현대일렉·효성중공업·제룡전기·LS ELECTRIC·대한전선<br><br>
+      <span class="badge badge-red">②</span> <strong>발전원 (3~5년)</strong><br>
+      원전·SMR·가스터빈 — 빅테크 PPA가 프리미엄 증명<br>
+      → 두산에너빌리티·GE버노바·컨스텔레이션(CEG)<br><br>
+      <span class="badge badge-purple">③</span> <strong>저장 (동반 성장)</strong><br>
+      ESS·배터리 — 신재생·데이터센터와 함께 크는 시장<br>
+      → LG에너지솔루션·삼성SDI·플루언스(FLNC)·테슬라 메가팩<br><br>
+      <span class="badge badge-green">TIP</span> 세 축은 순서대로 파도가 옵니다. 지금 어느 파도가 와 있는지 보는 게 타이밍의 전부예요.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 기업탭 ═══ -->
+<div class="section" id="sec-company">
+  <div class="sec-title">🇰🇷 국내 에너지 기업</div>
+  <div class="company-list" id="domestic-list"></div>
+  <div class="sec-title">🌍 글로벌 에너지 기업</div>
+  <div class="company-list" id="global-list"></div>
+</div>
+
+<!-- ═══ 용어탭 ═══ -->
+<div class="section" id="sec-terms">
+  <div class="search-wrap" style="top:117px">
+    <input class="search-box" id="searchBox" placeholder="🔍 에너지·전력 용어 검색..." oninput="filterTerms()">
+  </div>
+  <div class="filter-wrap" id="filterWrap">
+    <button class="filter-btn active" onclick="setFilter('전체')">전체</button>
+    <button class="filter-btn" onclick="setFilter('전력기초')">전력기초</button>
+    <button class="filter-btn" onclick="setFilter('신재생')">신재생</button>
+    <button class="filter-btn" onclick="setFilter('배터리')">배터리</button>
+    <button class="filter-btn" onclick="setFilter('수소')">수소</button>
+    <button class="filter-btn" onclick="setFilter('정책')">정책·제도</button>
+    <button class="filter-btn" onclick="setFilter('시장')">시장·투자</button>
+  </div>
+  <div class="term-list" id="termList"></div>
+</div>
+
+</div><!-- /content -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-tags" id="modalTags"></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-related" id="modalRelated" style="display:none">
+      <div class="modal-related-title">🔗 연관 개념</div>
+      <div id="modalRelLinks"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────
+const STEPS=[
+  {title:"전기의 여행: 발전→송전→배전",icon:"⚡",
+   content:`전기는 발전소에서 만들어져 먼 길을 거쳐 가정에 도달해요.<br><br>
+<span class="kw">발전(Generation)</span> → <span class="kw">송전(Transmission)</span> → <span class="kw">배전(Distribution)</span><br><br>
+발전소에서 만든 전기는 154kV~765kV의 <span class="kw">초고압</span>으로 변환해 멀리 보내요.
+높은 전압일수록 같은 전력을 더 적은 전류로 보낼 수 있어 손실이 줄어요.
+변전소에서 단계적으로 낮춰 가정에는 220V로 전달돼요.<br><br>
+🚚 비유하면: 발전소=공장, 송전=고속도로(대형트럭), 변전소=물류센터, 배전=동네 골목길(택배차)이에요.
+<div class="hl">💡 한국 전력망은 <strong>한국전력(한전)</strong>이 운영. 주파수 60Hz. 발전량=소비량을 실시간으로 맞춰야 해요!</div>`},
+  {title:"에너지 믹스와 발전 방식",icon:"🏭",
+   content:`전기를 만드는 방법은 다양해요. 각각 장단점이 있어서 여러 방식을 <span class="kw">에너지 믹스</span>로 조합해요.<br><br>
+🔥 <span class="kw">화력</span>: 석탄·LNG 연소 → 터빈. 안정적이지만 CO₂ 배출<br>
+⚛️ <span class="kw">원자력</span>: 핵분열 열 → 터빈. 저탄소·저비용 but 폐기물<br>
+🌞 <span class="kw">태양광</span>: 빛 → 반도체 → 전기. 무탄소 but 간헐성<br>
+💨 <span class="kw">풍력</span>: 바람 → 블레이드 → 전기. 해상이 가장 유망<br><br>
+⚽ 비유하면: 원전·석탄=풀타임 주전(기저발전), LNG=교체 카드(피크 대응), 태양광·풍력=컨디션 따라 기복 있는 천재 선수(간헐성)예요.
+<div class="hl">한국 전력 구성: 화력 약 60% / 원자력 약 30% / 신재생 약 10%</div>`},
+  {title:"간헐성과 ESS의 역할",icon:"🔋",
+   content:`신재생에너지의 가장 큰 약점은 <span class="kw">간헐성</span>이에요. 해가 없으면 태양광이 안 되고, 바람이 없으면 풍력이 안 되죠.<br><br>
+이를 해결하는 게 <span class="kw">ESS(에너지저장장치)</span>예요.<br><br>
+낮에 태양광으로 발전 → 배터리 저장 → 야간·피크 시간에 방전<br><br>
+<span class="kw">V2G(Vehicle-to-Grid)</span>: 전기차를 이동식 ESS로 활용!<br><br>
+제주도는 신재생이 넘쳐서 발전기를 강제로 끄는 <span class="kw">출력제어</span>가 연 100회 이상 — 애써 만든 전기를 버리는 셈이라 ESS가 더욱 절실해요.
+<div class="hl">💰 전기차 시장이 주춤한 지금, 배터리 3사(LG엔솔·삼성SDI·SK온)의 새 성장축이 바로 ESS예요. 미국 ESS 시장은 연 30%+ 성장 중!</div>`},
+  {title:"스마트그리드와 전력 인프라",icon:"🔌",
+   content:`기존 전력망은 발전소 → 소비자의 <span class="kw">단방향</span>이었어요.<br>
+신재생이 늘수록 양방향 관리가 필요해져서 <span class="kw">스마트그리드</span>가 등장했어요.<br><br>
+전력망 + ICT = 실시간 수요·공급 관리<br><br>
+<span class="kw">AI 데이터센터</span> 폭증으로 <span class="kw">변압기·케이블</span> 납기가 3~4년으로 급등!
+게다가 미국 전력망은 평균 수명 40년+ → 교체 수요까지 겹친 이중 병목이에요.
+<div class="hl">💰 수혜 순서: 변압기(HD현대일렉·효성·제룡) → 케이블(LS전선·대한전선·일진전기) → 배전(LS ELECTRIC). 병목이 심한 앞단부터 돈을 벌어요!</div>`},
+  {title:"AI 데이터센터 = 전력 슈퍼사이클",icon:"🤖",
+   content:`AI 시대의 진짜 병목은 반도체가 아니라 <span class="kw">전력</span>이에요.<br><br>
+• ChatGPT 1회 질문 = 구글 검색의 약 10배 전력<br>
+• AI 데이터센터 1개 = 중소도시급 전력(100MW~1GW)<br>
+• 글로벌 데이터센터 전력 수요: 2030년까지 2배 이상 성장 전망<br><br>
+그래서 빅테크가 직접 움직여요:<br>
+• MS → 스리마일섬 <span class="kw">원전 재가동</span> 20년 계약 (컨스텔레이션)<br>
+• 구글 → SMR·차세대 지열 전력 계약<br>
+• NVIDIA → 2027년 <span class="kw">800V HVDC</span> 데이터센터 배전 도입 발표<br><br>
+🍜 비유하면: AI 붐 = 라면 대유행. 라면회사(반도체)만 보지 말고, 밀가루(전력)·물류(전력망)를 파는 회사를 보라는 거예요.
+<div class="hl">💰 AI 전력 슈퍼사이클 수혜 사슬: ①변압기·전력기기(즉시) → ②케이블·송전망(1~2년) → ③원전·SMR·가스터빈(3~5년) → ④ESS·냉각(동반). 반도체 슈퍼사이클의 에너지 버전!</div>`},
+  {title:"탄소중립과 에너지 전환",icon:"🌍",
+   content:`<span class="kw">탄소중립(넷제로)</span>은 배출한 탄소 = 흡수한 탄소, 순 배출량 0을 말해요.<br><br>
+한국 목표: 2030년 40% 감축 → 2050년 넷제로<br><br>
+<span class="kw">NDC</span>: 각 나라가 파리협정에 제출하는 온실가스 감축 계획<br>
+<span class="kw">RE100</span>: 기업 전력 100% 재생에너지 목표 (원전 포함하면 <span class="kw">CFE</span>)<br>
+<span class="kw">CBAM</span>: 유럽 탄소국경세 — 2026년 본격 시행, 한국 철강·알루미늄 직격탄
+<div class="hl">🌱 탄소중립은 기술+경제+정치의 문명 전환. 규제(CBAM)가 강해질수록 무탄소 전력의 가치가 올라가요!</div>`},
+  {title:"전기요금과 한전의 구조",icon:"💡",
+   content:`전기요금이 어떻게 정해지는지 알면 에너지 뉴스가 쉬워져요.<br><br>
+<span class="kw">전기요금</span> = 기본요금 + 전력량요금 + 기후환경요금 + 연료비조정요금<br><br>
+한전은 발전사에서 <span class="kw">SMP(계통한계가격)</span>로 전기를 사서 소비자에게 팔아요.
+SMP는 그 시간 가장 비싼 발전기(주로 LNG)의 원가로 결정 → LNG 가격이 오르면 한전의 매입 원가 급등!<br><br>
+그런데 판매 요금은 정부가 통제 → 원가보다 싸게 팔면 <span class="kw">한전 적자</span>가 쌓여요.
+🏪 비유하면: 도매가는 시장이 정하는데 소매가는 정부가 정하는 편의점 — 도매가 폭등하면 팔수록 손해!
+<div class="hl">💰 한전(015760)·가스공사(036460)의 투자 포인트는 딱 하나 — 요금 정상화 속도. 요금 인상 = 적자 해소 = 송전망 투자 여력 회복이라는 연쇄 구조예요.</div>`},
+  {title:"한국 에너지 현실과 투자 지도",icon:"🇰🇷",
+   content:`한국 에너지 수입 의존도: 약 <span class="kw">93%</span> (세계 최고 수준)<br>
+에너지 수입 비용: 연간 약 200조원 (2022년 역대 최대)<br><br>
+<span class="kw">K-에너지 강점</span>:<br>
+• 배터리 (LG·삼성·SK) — ESS로 성장축 전환 중<br>
+• 원전 수출 (APR1400 → UAE 완공, 체코 수주) + 주기기 독점 두산에너빌리티<br>
+• 전력기기 (변압기 3대장·케이블) — AI 슈퍼사이클 직수혜<br>
+• LNG선 건조 세계 1위, 해상풍력 잠재량 약 1,000GW
+<div class="hl">📊 에너지 투자 3대 축으로 기억하세요: ①인프라(변압기·케이블 — 현재진행형) ②발전원(원전·SMR — 3~5년) ③저장(ESS·배터리 — 동반 성장). 각 축의 대장주를 아는 게 시작이에요!</div>`}
+];
+
+const GEN_CARDS=[
+  {id:'coal',icon:'🔥',name:'석탄발전',badge:'화력',color:'#ef4444',
+   pros:'• 출력 안정적\n• 기술 성숙도 높음\n• 연료 조달 용이',
+   cons:'• CO₂ 820g/kWh (가장 높음)\n• 미세먼지 주범\n• 2030년대 단계적 폐지 예정',
+   share:'한국 전력의 약 35%',related:['LNG발전','탄소세','배출권거래제']},
+  {id:'lng',icon:'🔵',name:'LNG발전',badge:'화력',color:'#3b82f6',
+   pros:'• 석탄보다 CO₂ 절반\n• 빠른 출력 조절 가능\n• 피크 대응 유리',
+   cons:'• 연료비 높고 변동성 큼\n• 러시아 사태로 공급 불안\n• 여전히 탄소 배출',
+   share:'한국 전력의 약 25%',related:['에너지안보','CCUS','탄소중립']},
+  {id:'nuclear',icon:'⚛️',name:'원자력',badge:'저탄소',color:'#9b59b6',
+   pros:'• CO₂ 12g/kWh (거의 없음)\n• 발전단가 저렴\n• 24시간 안정적 기저발전',
+   cons:'• 방사성 폐기물\n• 사고 위험 (후쿠시마)\n• 건설 기간 10년+',
+   share:'한국 전력의 약 30%',related:['SMR','APR1400','에너지안보']},
+  {id:'solar',icon:'☀️',name:'태양광',badge:'신재생',color:'#f59e0b',
+   pros:'• 무탄소\n• 모듈 가격 90% 하락\n• 분산 발전 가능',
+   cons:'• 야간·흐린날 발전 불가\n• 넓은 면적 필요\n• 중국 공급망 80% 지배',
+   share:'한국 신재생 1위',related:['ESS','인버터','RE100']},
+  {id:'wind',icon:'💨',name:'풍력',badge:'신재생',color:'#22c55e',
+   pros:'• 무탄소\n• 해상은 육상보다 효율 높음\n• 바람 강할수록 효율 ↑ (3제곱 비례)',
+   cons:'• 소음 (육상)\n• 조류·어류 영향 (해상)\n• 인허가 오래 걸림',
+   share:'한국 잠재량 1,000GW',related:['해상풍력','씨에스윈드','서남해풍력']},
+  {id:'hydro',icon:'🌊',name:'수력·양수',badge:'재생',color:'#06b6d4',
+   pros:'• 무탄소\n• 양수발전 = 에너지 저장\n• 반영구적',
+   cons:'• 입지 제한 (댐 필요)\n• 환경 영향\n• 한국에서 확대 한계',
+   share:'한국 신재생 일부',related:['ESS','양수발전','간헐성']},
+];
+
+const MODALS={
+  solar:{title:'☀️ 태양광 발전',tags:['신재생','간헐성','페로브스카이트'],
+   body:`<strong>원리</strong><br>실리콘 반도체(태양전지)에 빛이 닿으면 전자가 이동해 직류(DC) 전기 생성 → 인버터로 교류(AC) 변환 → 가정·전력망 공급<br><br>
+<strong>밸류체인</strong><br>폴리실리콘 → 잉곳·웨이퍼 → 셀 → 모듈 → 설치·운영. 중국이 80% 이상 장악 → 미국 IRA로 탈중국 공급망 재편 중<br><br>
+<strong>효율 로드맵</strong><br>상용 실리콘: 20~23% (이론 한계 약 29%)<br>차세대 <strong>페로브스카이트+실리콘 탠덤셀</strong>: 30%+ 목표, 이론 43%까지 가능 → 태양광 2세대 혁명<br><br>
+<strong>한국 현황</strong><br>일조량 연 1,200~1,400시간. 설치 후 본전 8~12년. 호남 지역은 계통포화로 신규 연결 대기 중 → 송전망 투자가 병목<br><br>
+<strong>💰 투자 포인트</strong><br>① 모듈 가격 92% 하락 → 제조 마진 박살, <strong>인버터·ESS·설치 서비스</strong>가 더 유망<br>② 미국 생산 기업(한화솔루션·퍼스트솔라)은 IRA 세액공제가 실적 지렛대<br>③ 페로브스카이트 상용화 기업이 차세대 승자 후보`,
+   rel:['페로브스카이트','인버터','IRA','계통포화']},
+  wind:{title:'💨 풍력 발전',tags:['신재생','해상','부유식'],
+   body:`<strong>원리</strong><br>바람 → 블레이드 회전 → 발전기. 풍력 출력 = 풍속의 <strong>3제곱</strong>. 바람 2배 → 전력 8배! 날개 길이의 제곱에도 비례 → 터빈 대형화 경쟁(최신 15~20MW급, 날개 100m+)<br><br>
+<strong>육상 vs 해상 vs 부유식</strong><br>육상: 비용 낮음, 소음·경관 민원<br>해상(고정식): 바람 강하고 일정, 수심 50m까지<br><strong>부유식</strong>: 터빈을 바다에 띄움 → 깊은 바다 진출 가능, 울산 앞바다 대규모 프로젝트 진행 중<br><br>
+<strong>한국 잠재량</strong><br>해상풍력 약 1,000GW (현재 전체 설비의 7배!). 서남해 풍속 7~8m/s. 인허가 기간 단축이 최대 과제 → 해상풍력특별법 통과로 물꼬<br><br>
+<strong>💰 투자 포인트</strong><br>① 터빈보다 <strong>기자재·인프라</strong>가 안전한 접근: 타워(씨에스윈드)·해저케이블(LS전선)·하부구조물(세진중공업)<br>② 터빈 제조사(베스타스·지멘스가메사)는 수주 늘어도 수익성 회복이 관건<br>③ 해상풍력은 조선·중공업 인프라 보유국(한국)이 구조적으로 유리`,
+   rel:['부유식해상풍력','씨에스윈드','해저케이블','모노파일']},
+  hydrogen:{title:'💧 수소 경제',tags:['수소','그린수소','암모니아'],
+   body:`<strong>수소 색깔 분류</strong><br>🟢 그린수소: 재생에너지+수전해 (가장 친환경)<br>🔵 블루수소: 천연가스+CCS (징검다리)<br>🩶 그레이수소: 천연가스 개질 (현재 대부분, 탄소 배출)<br><br>
+<strong>핵심 기술 사슬</strong><br><strong>수전해</strong>: 물+전기 → 수소 / <strong>연료전지</strong>: 수소+산소 → 전기 (반대 과정)<br><strong>액화수소</strong>: -253°C 냉각 → 부피 1/800, 대량 운송 가능<br><strong>암모니아(NH₃)</strong>: 수소 운반체. 석탄·LNG에 섞어 태우는 혼소 발전으로 활용<br><br>
+<strong>대량 수요처</strong><br>① 수소환원제철(포스코 HyREX — 철강은 국내 탄소배출 1위)<br>② 발전용 연료전지(HPS 입찰 제도)<br>③ 수소차·수소버스(현대 넥쏘)<br><br>
+<strong>💰 투자 포인트</strong><br>① 수소는 <strong>가장 긴 호흡의 테마</strong> — 2030년대 경제성 확보 전망, 단기 실적보다 정책 모멘텀에 움직임<br>② 발전용 연료전지(두산퓨얼셀)는 HPS 입찰 물량이 실적 좌우<br>③ 액화수소 인프라(효성중공업)·암모니아 혼소(두산에너빌리티)가 현실적 접근`,
+   rel:['수전해','연료전지','암모니아 혼소','수소환원제철']},
+  battery:{title:'🔋 ESS·배터리',tags:['ESS','LFP','전고체'],
+   body:`<strong>ESS(에너지저장장치)</strong><br>배터리+PCS(전력변환)+EMS(관리시스템)로 구성. 신재생 간헐성의 핵심 해결책. 미국 ESS 시장 연 30%+ 성장 — 전기차 캐즘 속 배터리 업계의 새 성장축<br><br>
+<strong>배터리 기술 지도</strong><br><strong>NCM(하이니켈)</strong>: 한국 3사 주력, 고성능·프리미엄<br><strong>LFP</strong>: 중국 장악, 저렴·안전·장수명 → ESS는 LFP가 대세, 한국 3사도 전환 중<br><strong>전고체</strong>: 고체 전해질 → 화재 위험↓ 에너지밀도↑, 삼성SDI 2027년 양산 목표<br><br>
+<strong>소재 4대장</strong><br>양극재(원가 40%)·음극재·분리막·전해질 — 배터리 성능과 안전을 좌우<br><br>
+<strong>V2G(Vehicle-to-Grid)</strong><br>전기차 배터리 ↔ 전력망 양방향 연결. 전기차 1억대 = 거대한 분산 배터리 네트워크<br><br>
+<strong>💰 투자 포인트</strong><br>① 전기차 캐즘 국면 → <strong>ESS 매출 비중이 늘어나는 기업</strong>이 방어력 우수<br>② 전고체 상용화(2027~)는 밸류에이션 리레이팅 이벤트<br>③ 2030년경 폐배터리 리사이클링 시장 개화 — 도시광산 테마 선점 기업 주목`,
+   rel:['LFP배터리','전고체배터리','PCS','폐배터리 리사이클링']},
+  nuclear:{title:'⚛️ 원자력·SMR',tags:['원자력','SMR','체코원전'],
+   body:`<strong>원자력 발전 원리</strong><br>우라늄 핵분열 열 → 터빈 → 전기. 1kg 우라늄 = 석탄 3,000톤 에너지!<br><br>
+<strong>장점</strong>: CO₂ 12g/kWh, 발전단가 최저, 24시간 안정 기저발전, 좁은 면적<br>
+<strong>단점</strong>: 방사성 폐기물, 사고 리스크, 건설 10년+<br><br>
+<strong>SMR(소형모듈원자로)</strong><br>300MW 이하, 공장 제작→현장 조립. 자연 냉각으로 안전성↑. 뉴스케일파워가 미국 유일 설계 인증. 한국 i-SMR 개발 중. 데이터센터 옆에 SMR을 짓는 시대가 목표<br><br>
+<strong>원전 르네상스의 배경</strong><br>① AI 데이터센터 전력 폭증 → 24시간 무탄소 전원은 원전뿐<br>② MS가 스리마일섬 원전 재가동 계약(컨스텔레이션) → 빅테크가 원전 프리미엄 지불 증명<br>③ 한국: 체코 두코바니 수주 + 11차 전기본에 신규 원전 3기·SMR 1기 반영<br><br>
+<strong>💰 투자 포인트</strong><br>① 국내: 주기기 독점 <strong>두산에너빌리티</strong> → 보조기기(비에이치아이 등) 순 낙수효과<br>② 미국: 운영사(CEG·VST)는 이미 급등 — SMR 상용화(2030년경)가 다음 트리거<br>③ 원전은 정책 산업 — 전력수급기본계획·수출 뉴스가 주가 이벤트`,
+   rel:['SMR','두산에너빌리티','컨스텔레이션에너지','전력수급기본계획']},
+  smart:{title:'🔌 스마트그리드·전력 인프라',tags:['스마트그리드','HVDC','변압기'],
+   body:`<strong>개념</strong><br>전력망(Grid) + ICT = 양방향 지능형 전력망. 신재생·전기차·데이터센터가 늘수록 필수<br><br>
+<strong>핵심 기능</strong><br>• AMI(스마트미터): 15분 단위 사용량 실시간 전송<br>
+• DR(수요반응): 소비자 자발적 절약 + 인센티브<br>
+• 마이크로그리드: 독립 운영 소규모 전력망<br>
+• V2G: 전기차↔전력망 양방향 연결<br><br>
+<strong>AI가 만든 인프라 병목</strong><br>데이터센터 1개 = 중소도시급 전력(100MW~1GW). 변압기 납기 3~4년, 미국 전력망 평균 수명 40년+ → <strong>교체+증설 이중 수요</strong><br><br>
+<strong>800V HVDC</strong><br>NVIDIA가 2027년 도입 발표한 데이터센터 직류 배전 구조. 교류 변환 손실을 줄여 효율↑ → 전력 반도체·커패시터·배전 기업의 새 시장<br><br>
+<strong>💰 투자 포인트</strong><br>① 수혜 순서: <strong>변압기(즉시) → 케이블(1~2년) → 발전원(3~5년)</strong> — 병목이 심한 앞단부터<br>② 국내 변압기 3대장: HD현대일렉·효성중공업·제룡전기 / 배전: LS ELECTRIC<br>③ 글로벌: GE버노바·이튼·슈나이더 — 데이터센터 안팎을 장악한 기업들`,
+   rel:['HVDC','변압기','AI전력슈퍼사이클','데이터센터전력']},
+};
+
+const COMPANIES={
+  domestic:[
+    {flag:'🇰🇷',name:'HD현대일렉트릭',ticker:'267260',cat:'전력기기',color:'#3b82f6',
+     desc:'변압기·차단기 세계 4위. AI 데이터센터 수요 급증으로 수주잔고 역대 최고. 미국 앨라배마 공장 가동. 💰 AI 전력 슈퍼사이클 국내 대장주 — 수주잔고가 매출의 2년치 이상.',
+     tags:['변압기','수주잔고↑','AI수혜1순위']},
+    {flag:'🇰🇷',name:'효성중공업',ticker:'298040',cat:'전력기기',color:'#3b82f6',
+     desc:'초고압 변압기 전문. 미국·베트남 공장 증설. 액화수소 플랜트(울산·세계 최대)도 보유. 💰 변압기+수소 두 개의 성장 엔진을 가진 유일한 기업.',
+     tags:['초고압변압기','美공장증설','액화수소']},
+    {flag:'🇰🇷',name:'LS ELECTRIC',ticker:'010120',cat:'전력기기',color:'#3b82f6',
+     desc:'배전반·차단기·전력변환 국내 1위. 북미 데이터센터 배전 시스템 수주 급증. 초전도 케이블 기술 보유. 💰 데이터센터 내부 배전 = 변압기 다음 수혜 영역.',
+     tags:['배전시스템','데이터센터','북미수주']},
+    {flag:'🇰🇷',name:'제룡전기',ticker:'033100',cat:'전력기기',color:'#3b82f6',
+     desc:'중소형 변압기 미국 수출 특화. 텍사스 등 노후 전력망 교체 수요 직접 수혜. 💰 미국 매출 비중 80%+ — 변압기 3대장(HD일렉·효성·제룡) 중 가장 미국 집중.',
+     tags:['변압기','美수출특화','노후망교체']},
+    {flag:'🇰🇷',name:'LS전선',ticker:'비상장',cat:'케이블',color:'#f59e0b',
+     desc:'해저케이블·고압케이블 국내 1위. 해상풍력 확대로 해저케이블 수주 급증. 미국 해저케이블 공장 건설. 💰 상장사 LS(지주)·LS에코에너지를 통해 간접 투자 가능.',
+     tags:['해저케이블','해상풍력','미국공장']},
+    {flag:'🇰🇷',name:'대한전선',ticker:'001440',cat:'케이블',color:'#f59e0b',
+     desc:'전력케이블 전문. 미국 IRA 수혜로 북미 수출 급증. 초고압 케이블 미국 인증 보유. 💰 노후 전력망 교체 사이클(미국 전력망 평균 40년+)의 직접 수혜.',
+     tags:['전력케이블','北美수출','IRA수혜']},
+    {flag:'🇰🇷',name:'일진전기',ticker:'103590',cat:'케이블',color:'#f59e0b',
+     desc:'전선+변압기를 동시 보유한 드문 기업. 미국·중동 수출 확대. 💰 케이블·변압기 양쪽 슈퍼사이클에 모두 올라탄 하이브리드 포지션.',
+     tags:['전선+변압기','중동수출','하이브리드']},
+    {flag:'🇰🇷',name:'두산에너빌리티',ticker:'034020',cat:'원전',color:'#e74c3c',
+     desc:'원자로·증기발생기 등 원전 주기기 국내 독점. 가스터빈 국산화(세계 5번째). 뉴스케일 지분 보유 → SMR 파운드리 목표. 💰 체코 원전 + SMR + 가스터빈 삼박자 — 원전 르네상스 국내 대장주.',
+     tags:['원전주기기독점','SMR','가스터빈']},
+    {flag:'🇰🇷',name:'한수원(한국수력원자력)',ticker:'공기업',cat:'원전',color:'#e74c3c',
+     desc:'국내 원전 26기 운영. APR1400 개발·수출. 체코 두코바니 원전 우선협상 → 유럽 진출 교두보. i-SMR 개발 중. 💰 비상장이지만 수주 뉴스가 두산에너빌리티 등 원전주 전체를 움직임.',
+     tags:['원전26기','APR1400','체코수출']},
+    {flag:'🇰🇷',name:'비에이치아이',ticker:'083650',cat:'원전',color:'#e74c3c',
+     desc:'배열회수보일러(HRSG) 세계 1위. 원전 보조기기·SMR 기자재로 확장. 💰 가스발전(HRSG)과 원전 기자재를 함께 가져가는 원전 생태계 소부장 대표주.',
+     tags:['HRSG세계1위','원전보조기기','SMR기자재']},
+    {flag:'🇰🇷',name:'씨에스윈드',ticker:'112610',cat:'풍력',color:'#22c55e',
+     desc:'풍력 타워 세계 1위. 유럽·베트남·미국에 공장 보유. 해상풍력 하부구조물(블라트 인수)로 확장. 💰 IRA 세액공제(AMPC) 직접 수혜 — 미국 정책 변화가 최대 변수.',
+     tags:['풍력타워세계1위','해상풍력','AMPC']},
+    {flag:'🇰🇷',name:'세진중공업',ticker:'075580',cat:'풍력',color:'#22c55e',
+     desc:'해상풍력 모노파일(기초구조물) 전문. 조선 기자재 기반으로 해상풍력 확장. 💰 울산 부유식 해상풍력 프로젝트 진행 시 직접 수혜 위치.',
+     tags:['모노파일','해상풍력기초','울산부유식']},
+    {flag:'🇰🇷',name:'LG에너지솔루션',ticker:'373220',cat:'배터리',color:'#9b59b6',
+     desc:'전기차·ESS 배터리 글로벌 2위. 하이니켈 양극재 경쟁력. 미국 ESS 전용 라인 전환 가속. 💰 전기차 캐즘 국면에서 ESS가 새 성장축 — 미국 ESS 시장 연 30%+ 성장.',
+     tags:['배터리글로벌2위','ESS전환','북미최대']},
+    {flag:'🇰🇷',name:'삼성SDI',ticker:'006400',cat:'배터리',color:'#9b59b6',
+     desc:'전고체 배터리 2027년 양산 목표로 선도. 스텔란티스·BMW 공급. ESS용 SBB(삼성배터리박스) 확대. 💰 전고체 상용화 시 밸류에이션 리레이팅 가능성이 관전 포인트.',
+     tags:['전고체배터리','SBB','P6']},
+    {flag:'🇰🇷',name:'SK온',ticker:'비상장',cat:'배터리',color:'#9b59b6',
+     desc:'포드·현대기아 파트너. 북미 최대 배터리 투자. 하이니켈 NCM 기술력 보유. 💰 SK이노베이션(096770)을 통해 간접 투자 가능.',
+     tags:['포드파트너','北美최대','NCM']},
+    {flag:'🇰🇷',name:'한화솔루션',ticker:'009830',cat:'태양광',color:'#f59e0b',
+     desc:'한화큐셀 운영. 태양광 모듈 미국 주거용 점유율 1위. 미국 내 잉곳~모듈 풀 밸류체인(솔라허브) 구축. 💰 IRA 세액공제 최대 수혜 — 정책 리스크와 모듈 가격이 양날의 검.',
+     tags:['태양광모듈','솔라허브','IRA']},
+    {flag:'🇰🇷',name:'HD현대에너지솔루션',ticker:'322000',cat:'태양광',color:'#f59e0b',
+     desc:'태양광 모듈·인버터 제조. HD현대 그룹 에너지 계열사. 국내외 신재생 사업 확대. 💰 국내 태양광 순수 플레이어 — 국내 보급 정책에 민감.',
+     tags:['태양광','인버터','HD현대']},
+    {flag:'🇰🇷',name:'SK이터닉스',ticker:'475150',cat:'신재생유틸리티',color:'#22c55e',
+     desc:'SK디앤디에서 분할한 신재생 전문 디벨로퍼. 태양광·풍력·연료전지 발전소를 개발·운영하고 RE100 솔루션(PPA) 제공. 💰 국내 유일 상장 신재생 디벨로퍼 순수 플레이어 — RE100 수요 확대와 전력 판매 단가가 실적 핵심.',
+     tags:['신재생디벨로퍼','RE100','PPA','연료전지']},
+    {flag:'🇰🇷',name:'두산퓨얼셀',ticker:'336260',cat:'수소',color:'#06b6d4',
+     desc:'발전용 연료전지 국내 1위. HPS(수소발전 입찰) 시장 주도. SOFC(고효율 연료전지)로 확장 중. 💰 수소 정책(HPS 입찰 물량)이 실적을 좌우하는 정책 수혜주.',
+     tags:['연료전지1위','HPS','SOFC']},
+    {flag:'🇰🇷',name:'한국전력',ticker:'015760',cat:'유틸리티',color:'#3b82f6',
+     desc:'국내 전력 판매 독점. 발전 자회사 6개 보유. 연료비 급등기 대규모 적자 → 요금 인상으로 회복 중. 💰 전기요금 정상화 = 실적 회복 스토리. 배당 재개 여부가 핵심 체크포인트.',
+     tags:['전력판매독점','요금정상화','턴어라운드']},
+    {flag:'🇰🇷',name:'한국가스공사',ticker:'036460',cat:'LNG',color:'#3b82f6',
+     desc:'LNG 도입·공급 독점 공기업. 해외 가스전 지분 보유. 💰 미수금(요금 동결로 쌓인 외상값) 회수 속도가 주가의 핵심 — 요금 인상 시 수혜.',
+     tags:['LNG독점','미수금회수','가스전']},
+  ],
+  global:[
+    {flag:'🇺🇸',name:'GE버노바',ticker:'GEV',cat:'전력기기',color:'#3b82f6',
+     desc:'GE에서 분사한 에너지 전문 기업. 가스터빈·풍력·그리드 3개 부문. 세계 전력의 25%가 GE 장비로 생산. 💰 AI 전력 슈퍼사이클의 글로벌 대장주 — 가스터빈 슬롯이 2028년까지 매진.',
+     tags:['가스터빈','그리드','AI전력대장주']},
+    {flag:'🇺🇸',name:'컨스텔레이션에너지',ticker:'CEG',cat:'원전',color:'#e74c3c',
+     desc:'미국 최대 원전 운영사(21기). MS와 스리마일섬 원전 재가동 20년 계약 체결로 화제. 💰 빅테크 데이터센터 PPA의 최대 수혜 — 원전 전력의 프리미엄화를 증명한 기업.',
+     tags:['美최대원전','MS계약','데이터센터PPA']},
+    {flag:'🇺🇸',name:'비스트라',ticker:'VST',cat:'IPP',color:'#f59e0b',
+     desc:'원전+가스+ESS를 보유한 미국 민자발전사(IPP). 데이터센터 전력 계약 기대로 주가 급등. 💰 규제 없는 전력 판매(merchant) 구조 → 전력 가격 상승이 그대로 이익으로.',
+     tags:['IPP','원전+가스','전력가격레버리지']},
+    {flag:'🇺🇸',name:'뉴스케일파워',ticker:'SMR',cat:'원전',color:'#e74c3c',
+     desc:'SMR 전문 기업(티커도 SMR). 미국 NRC 설계 인증을 받은 유일한 SMR. 두산에너빌리티가 지분 투자+기자재 공급. 💰 SMR 테마 대표주 — 상용화 전 단계라 변동성 매우 큼.',
+     tags:['SMR유일인증','두산협력','고변동성']},
+    {flag:'🇫🇷',name:'슈나이더일렉트릭',ticker:'SU.PA',cat:'전력기기',color:'#3b82f6',
+     desc:'배전·전력관리 글로벌 1위. 데이터센터 전력·냉각 통합 솔루션 강자. 💰 데이터센터 안쪽(배전반·UPS·냉각)을 장악 — 이튼과 함께 미국 외 대안.',
+     tags:['배전1위','데이터센터솔루션','유럽대표']},
+    {flag:'🇺🇸',name:'이튼(Eaton)',ticker:'ETN',cat:'전력기기',color:'#3b82f6',
+     desc:'전력관리 솔루션 글로벌 강자. 데이터센터 UPS·배전반. AI 인프라 확대 최대 수혜 중 하나. 💰 매출의 70%가 전기 부문 — 순수 전력관리 플레이에 가까운 대형주.',
+     tags:['전력관리','UPS','데이터센터']},
+    {flag:'🇩🇰',name:'베스타스(Vestas)',ticker:'VWS.CO',cat:'풍력',color:'#22c55e',
+     desc:'풍력 터빈 제조 세계 1위. 육상·해상풍력 전 세계 설치. 💰 유럽 해상풍력 확대의 바로미터 — 수주는 늘지만 수익성 회복이 관건.',
+     tags:['풍력터빈세계1위','육상해상']},
+    {flag:'🇩🇰',name:'오스테드(Ørsted)',ticker:'ORSTED.CO',cat:'해상풍력',color:'#22c55e',
+     desc:'해상풍력 개발 세계 1위. 석유가스 기업에서 신재생으로 완전 전환한 상징적 기업. 💰 미국 프로젝트 손상차손으로 급락 후 구조조정 중 — 해상풍력 업황의 리트머스지.',
+     tags:['해상풍력개발1위','에너지전환상징']},
+    {flag:'🇺🇸',name:'넥스트에라에너지',ticker:'NEE',cat:'신재생유틸리티',color:'#f59e0b',
+     desc:'미국 최대 신재생에너지 발전사. 태양광·풍력 발전 세계 최대 규모. 💰 30년 연속 배당 성장 — 신재생+유틸리티 안정성을 동시에 가진 배당성장주.',
+     tags:['신재생유틸리티','美최대','배당성장']},
+    {flag:'🇺🇸',name:'퍼스트솔라',ticker:'FSLR',cat:'태양광',color:'#f59e0b',
+     desc:'미국 최대 태양광 모듈 제조사. 박막(CdTe) 기술로 중국 공급망에서 독립. 💰 IRA 세액공제 최대 수혜 미국 기업 — 정책 방향이 곧 주가 방향.',
+     tags:['박막태양광','IRA수혜','MadeInUSA']},
+    {flag:'🇺🇸',name:'플루언스에너지',ticker:'FLNC',cat:'ESS',color:'#9b59b6',
+     desc:'대규모 ESS 세계 선도. 지멘스에너지+AES 합작. 전력망 배터리 전문. 💰 신재생 간헐성 해결의 순수 플레이 — ESS 시장 성장률(연 30%+)을 그대로 반영.',
+     tags:['대규모ESS','전력망배터리']},
+    {flag:'🇺🇸',name:'테슬라 에너지',ticker:'TSLA',cat:'ESS',color:'#9b59b6',
+     desc:'메가팩(대용량 ESS)·파워월(가정용) 사업부. 테슬라 내에서 가장 빠르게 성장하는 부문. 💰 자동차보다 마진 높은 에너지 부문이 테슬라 실적의 숨은 버팀목.',
+     tags:['메가팩','파워월','고마진']},
+    {flag:'🇩🇪',name:'지멘스에너지',ticker:'ENR.DE',cat:'전력기기',color:'#3b82f6',
+     desc:'가스터빈·변압기·해상풍력(지멘스가메사) 종합 에너지 기업. 💰 풍력 부문 부실을 그리드(전력망) 부문 호황이 상쇄 — 그리드 수주잔고 역대 최고.',
+     tags:['가스터빈','그리드호황','해상풍력']},
+  ]
+};
+
+const TERMS=[
+// ─── 전력기초 (19) ───
+{name:'가스터빈(GT)',cat:'전력기초',def:'천연가스를 연소해 터빈을 돌려 전기를 생산하는 발전 방식. 빠른 기동·정지가 가능해 피크 시간 전력 조절에 유리. LNG 발전소의 핵심. 두산에너빌리티가 국산화 성공(세계 5번째).',related:['LNG','피크부하','두산에너빌리티']},
+{name:'계통(Grid)',cat:'전력기초',def:'전기를 생산·전달·소비하는 전력망 전체 시스템. 발전소~변전소~배전선~가정까지 연결. 실시간 발전량=소비량 균형이 필수.',related:['스마트그리드','주파수','한국전력']},
+{name:'기저발전',cat:'전력기초',def:'24시간 일정하게 전력을 공급하는 발전 방식. 원자력·석탄이 대표적. 발전비용이 낮고 출력이 안정적. 신재생 확대에 따라 기저발전 역할이 변화 중.',related:['원자력','석탄','피크부하']},
+{name:'스마트그리드',cat:'전력기초',def:'기존 전력망(Grid)에 ICT(정보통신기술)를 결합해 전력 생산·전송·소비를 실시간으로 최적화하는 지능형 전력망. 신재생에너지 확산과 전기차 보급에 필수 인프라.',related:['AMI','V2G','마이크로그리드']},
+{name:'에너지믹스',cat:'전력기초',def:'여러 발전 방식을 조합해 안정성·경제성·친환경성을 동시에 추구하는 전력 공급 전략. 화력·원전·신재생의 최적 조합이 목표.',related:['기저발전','피크부하','탄소중립']},
+{name:'피크부하',cat:'전력기초',def:'전력 수요가 가장 높은 시간대의 전력 소비량. 여름 낮 12~3시, 겨울 저녁 6~9시가 피크. 피크 대응을 위해 가스발전·ESS·수요반응을 활용.',related:['기저발전','수요반응','ESS']},
+{name:'HVDC',cat:'전력기초',def:'High Voltage Direct Current. 고압직류송전. 장거리 전력 전송 시 교류(AC)보다 손실이 적음. AI 데이터센터에서는 800V HVDC로 서버에 직접 공급해 전력 효율 향상 → NVIDIA가 2027년 도입 발표.',related:['변압기','데이터센터','800V']},
+{name:'마이크로그리드',cat:'전력기초',def:'독립적으로 운영 가능한 소규모 전력망. 태양광+ESS+소형발전기를 하나의 단위로 묶어 운영. 섬·산간 오지·군부대·병원·데이터센터 비상 전원으로 활용.',related:['ESS','스마트그리드','분산발전']},
+{name:'양수발전',cat:'전력기초',def:'남는 전기로 물을 높은 곳에 올려뒀다가 필요할 때 흘려보내 발전하는 방식. 대규모 에너지 저장 역할. 전력 피크 대응과 주파수 조정에 활용. 한국 7개소 운영, 신규 3개소 건설 중.',related:['ESS','간헐성','피크부하']},
+{name:'송전·배전',cat:'전력기초',def:'송전 = 발전소에서 변전소까지 초고압(154~765kV)으로 전기를 보내는 것. 배전 = 변전소에서 가정·공장까지 낮은 전압으로 나눠주는 것. 송전탑·배전반·케이블이 핵심 설비.',related:['변전소','변압기','LS전선']},
+{name:'변압기',cat:'전력기초',def:'전압을 올리거나 낮추는 장치. 발전소→초고압 승압, 소비지→220V 강압. AI 데이터센터 급증으로 글로벌 납기 3~4년으로 폭등 → HD현대일렉·효성중공업·제룡전기 슈퍼사이클의 주인공.',related:['HD현대일렉트릭','효성중공업','제룡전기']},
+{name:'변전소',cat:'전력기초',def:'전압을 바꾸고 전력 흐름을 제어하는 시설. 초고압 변전소(765·345kV)→1차 변전소(154kV)→배전용 변전소 순으로 단계적 강압. 데이터센터는 전용 변전소가 필요할 정도로 전력을 많이 씀.',related:['변압기','송전·배전','차단기']},
+{name:'주파수(60Hz)',cat:'전력기초',def:'전력망의 심장박동. 한국·미국은 60Hz, 유럽·일본 동부는 50Hz. 발전량>소비량이면 주파수 상승, 반대면 하락. 60Hz를 벗어나면 발전기 보호를 위해 자동 차단 → 대규모 정전 위험.',related:['계통','블랙아웃','예비율']},
+{name:'예비율',cat:'전력기초',def:'전력 공급 능력이 수요보다 얼마나 여유 있는지 나타내는 비율. 통상 10% 이상이 안정권. 폭염·한파 때 예비율이 5% 아래로 떨어지면 전력수급 경보 발령.',related:['피크부하','블랙아웃','전력수급기본계획']},
+{name:'출력제어',cat:'전력기초',def:'전력이 남아돌 때 발전기를 강제로 멈추는 조치. 제주도는 풍력·태양광 과잉으로 연 100회 이상 출력제어 발생 → 애써 만든 전기를 버리는 셈. ESS·해저케이블 확충이 해결책.',related:['간헐성','ESS','계통포화']},
+{name:'계통포화',cat:'전력기초',def:'전력망 수용 능력이 한계에 도달해 신규 발전소를 연결할 수 없는 상태. 호남·제주 지역은 태양광 급증으로 계통포화 → 발전 허가를 받아도 연결 대기 수년. 송전망 투자가 시급한 이유.',related:['출력제어','송전·배전','전력수급기본계획']},
+{name:'블랙아웃',cat:'전력기초',def:'대규모 정전. 수요가 공급을 초과하거나 주파수가 무너질 때 연쇄적으로 발전기가 차단되며 발생. 2011년 9·15 순환정전이 한국의 대표 사례. 이후 예비율 관리가 대폭 강화됨.',related:['주파수(60Hz)','예비율','계통']},
+{name:'kW·MW·GW',cat:'전력기초',def:'전력의 단위. 1GW=1,000MW=100만kW. 원전 1기≈1.4GW, 대형 데이터센터≈0.1~1GW, 가정용 에어컨≈2kW. kWh는 전력량(전기를 쓴 총량)으로 전기요금의 기준.',related:['설비이용률','발전단가','전기요금']},
+{name:'무효전력',cat:'전력기초',def:'실제 일은 하지 않지만 전압 유지에 필요한 전력. 전압이 흔들리면 계통 전체가 불안정해지므로 콘덴서·리액터로 무효전력을 보상. 신재생 비중이 높아질수록 무효전력 관리가 중요해짐.',related:['계통','주파수(60Hz)','스마트그리드']},
+// ─── 신재생 (15) ───
+{name:'간헐성',cat:'신재생',def:'태양광·풍력처럼 날씨·시간에 따라 발전량이 불규칙하게 변하는 특성. 신재생에너지 최대 단점. ESS·스마트그리드·수요반응으로 보완.',related:['ESS','스마트그리드','수요반응']},
+{name:'해상풍력',cat:'신재생',def:'바다 위에 설치하는 풍력 발전. 육상보다 바람이 강하고 일정해 발전 효율이 높음. 소음·경관 민원 없음. 최신 터빈은 날개 길이 100m+, 출력 15~20MW. 한국 잠재량 약 1,000GW.',related:['씨에스윈드','해저케이블','부유식해상풍력']},
+{name:'SMR',cat:'신재생',def:'Small Modular Reactor. 소형모듈원자로. 300MW 이하 소형 원자로. 공장 제작→현장 조립. 건설 기간 단축, 자연 냉각 가능. 한국 i-SMR 개발 중. 빌 게이츠 TerraPower, 뉴스케일파워가 선두주자.',related:['원자력','두산에너빌리티','뉴스케일파워']},
+{name:'페로브스카이트',cat:'신재생',def:'차세대 태양전지 소재. 기존 실리콘보다 얇고 가볍고 저렴하게 제조 가능. 실리콘 위에 겹치는 탠덤셀로 효율 30%+ 목표(실리콘 단독 한계 약 29%). 한국·중국·영국이 상용화 경쟁 중.',related:['탠덤셀','태양광 밸류체인','한화솔루션']},
+{name:'탠덤셀',cat:'신재생',def:'서로 다른 태양전지를 위아래로 겹쳐 더 넓은 파장의 빛을 흡수하는 구조. 페로브스카이트+실리콘 조합이 대표적. 이론 효율 43%까지 가능 → 태양광 2세대 혁명의 핵심.',related:['페로브스카이트','태양광 밸류체인','효율']},
+{name:'인버터',cat:'신재생',def:'태양광이 만든 직류(DC)를 가정·전력망용 교류(AC)로 바꾸는 장치. 태양광 시스템의 두뇌. 모듈 가격이 폭락한 뒤 밸류체인에서 마진이 가장 좋은 영역 중 하나.',related:['태양광 밸류체인','PCS','ESS']},
+{name:'태양광 밸류체인',cat:'신재생',def:'폴리실리콘→잉곳·웨이퍼→셀→모듈→설치·운영 순서의 생산 사슬. 중국이 폴리실리콘~모듈까지 80% 이상 장악. 미국 IRA로 탈중국 공급망 구축 중 → 한화솔루션·퍼스트솔라 수혜.',related:['IRA','한화솔루션','퍼스트솔라']},
+{name:'부유식해상풍력',cat:'신재생',def:'바다 바닥에 고정하지 않고 물에 띄우는 해상풍력. 수심 50m 이상 깊은 바다에 설치 가능 → 입지 제약 해소. 울산 앞바다에 대규모 프로젝트 진행 중. 고정식보다 비용 높지만 잠재량 압도적.',related:['해상풍력','모노파일','울산부유식']},
+{name:'모노파일',cat:'신재생',def:'해상풍력 터빈을 바다 바닥에 고정하는 대형 기둥 구조물. 지름 10m·무게 2,000톤 이상의 초대형 강관. 세진중공업 등 조선 인프라 보유국이 유리한 분야.',related:['해상풍력','세진중공업','하부구조물']},
+{name:'블레이드',cat:'신재생',def:'풍력 터빈의 날개. 길수록 더 많은 바람 에너지를 포집 → 최신 해상풍력은 날개 하나가 100m 이상. 탄소섬유·유리섬유 복합소재로 제작. 풍력 출력은 날개 길이의 제곱, 풍속의 3제곱에 비례.',related:['해상풍력','씨에스윈드','터빈']},
+{name:'영농형태양광',cat:'신재생',def:'농사를 지으면서 그 위에 태양광 패널을 설치하는 방식. 작물은 빛의 70~80%만 필요하다는 점을 활용. 농지 훼손 없이 태양광 보급 확대 가능 → 국토가 좁은 한국·일본에 적합한 모델.',related:['태양광 밸류체인','RPS','이격거리규제']},
+{name:'지열발전',cat:'신재생',def:'땅속 열로 터빈을 돌리는 발전. 24시간 안정적(간헐성 없음)이 최대 장점. 아이슬란드는 전력 30%가 지열. 구글이 차세대 지열 스타트업 Fervo와 데이터센터 전력 계약 체결.',related:['간헐성','데이터센터전력','바이오매스']},
+{name:'조력발전',cat:'신재생',def:'밀물·썰물의 높이 차로 터빈을 돌리는 발전. 시화호 조력발전소(254MW)는 세계 최대. 발전 시간이 정확히 예측 가능한 게 장점이지만 입지가 극히 제한적.',related:['수력','시화호','재생에너지']},
+{name:'바이오매스',cat:'신재생',def:'목재 펠릿·농업 부산물 등 유기물을 태워 발전. 신재생으로 분류되지만 연소 시 CO₂가 나와 논란 존재. 한국은 REC 가중치를 받아 석탄발전소 혼소용으로 활용 중.',related:['REC','혼소발전','탄소중립']},
+{name:'그리드패리티',cat:'신재생',def:'신재생에너지 발전단가가 화석연료와 같아지는 지점. 태양광은 중동·미국 남서부 등 일사량 좋은 지역에서 이미 달성. 보조금 없이도 경제성이 생기는 티핑포인트.',related:['발전단가','태양광 밸류체인','LCOE']},
+// ─── 배터리 (12) ───
+{name:'ESS',cat:'배터리',def:'Energy Storage System. 에너지저장장치. 전기를 저장했다가 필요할 때 꺼내 쓰는 장치. 배터리+전력변환장치(PCS)+에너지관리시스템(EMS)으로 구성. 신재생 간헐성 해결의 핵심. 미국 ESS 시장 연 30%+ 성장 중.',related:['배터리','V2G','간헐성']},
+{name:'V2G',cat:'배터리',def:'Vehicle-to-Grid. 전기차 배터리를 전력망과 양방향으로 연결해 전력을 주고받는 기술. 전기차가 이동식 ESS 역할. 피크 시간 방전, 심야 충전으로 전력망 안정화.',related:['ESS','전기차','스마트그리드']},
+{name:'전고체배터리',cat:'배터리',def:'액체 전해질을 고체로 바꾼 차세대 배터리. 화재 위험 대폭 감소 + 에너지밀도 향상 + 급속충전. 삼성SDI가 2027년 양산 목표로 선두. 상용화되면 전기차·ESS 판도 변화.',related:['삼성SDI','전해질','에너지밀도']},
+{name:'LFP배터리',cat:'배터리',def:'리튬·인산·철 배터리. NCM보다 에너지밀도는 낮지만 저렴하고 화재에 강하며 수명이 김. 중국 CATL·BYD가 장악. ESS 시장은 LFP가 대세가 되어 한국 3사도 LFP 라인 전환 중.',related:['NCM','CATL','ESS']},
+{name:'NCM(하이니켈)',cat:'배터리',def:'니켈·코발트·망간 삼원계 배터리. 니켈 비중을 높일수록(하이니켈) 에너지밀도 상승 → 주행거리 증가. 한국 3사의 주력 기술. 프리미엄 전기차용으로 강점.',related:['LFP배터리','양극재','LG에너지솔루션']},
+{name:'양극재',cat:'배터리',def:'배터리 원가의 40%를 차지하는 핵심 소재. 리튬이온을 저장했다가 내보내는 역할. 에코프로비엠·포스코퓨처엠·엘앤에프가 글로벌 강자. 배터리 성능(용량·수명)을 좌우.',related:['음극재','NCM(하이니켈)','에코프로비엠']},
+{name:'음극재',cat:'배터리',def:'충전 시 리튬이온을 받아 저장하는 소재. 주로 흑연 사용(중국 90% 장악). 차세대는 실리콘 음극재 → 충전 속도·용량 개선. 포스코퓨처엠이 국내 유일 흑연 음극재 양산.',related:['양극재','실리콘음극재','포스코퓨처엠']},
+{name:'분리막',cat:'배터리',def:'양극과 음극이 직접 닿지 않게 막는 얇은 필름. 손상되면 화재 발생 → 안전의 최후 방어선. SK아이이테크놀로지(SKIET)·더블유씨피가 국내 주요 기업.',related:['전해질','화재안전','SKIET']},
+{name:'PCS',cat:'배터리',def:'Power Conversion System. 전력변환장치. ESS의 직류를 전력망의 교류로 변환(반대도 가능). ESS 시스템에서 배터리 다음으로 큰 원가 비중. 인버터의 ESS 버전이라고 이해하면 쉬움.',related:['ESS','인버터','EMS']},
+{name:'BMS',cat:'배터리',def:'Battery Management System. 배터리 상태(온도·전압·충전량)를 실시간 감시·제어하는 두뇌. 과충전·과열 방지로 화재를 예방. 배터리 제조사의 소프트웨어 경쟁력이 여기서 갈림.',related:['ESS','화재안전','전고체배터리']},
+{name:'폐배터리 리사이클링',cat:'배터리',def:'수명이 다한 배터리에서 리튬·니켈·코발트를 회수해 재활용. 전기차 1세대 배터리가 쏟아지는 2030년경 시장 개화 전망. 성일하이텍·에코프로가 국내 선두. 도시광산이라 불림.',related:['양극재','리튬','성일하이텍']},
+{name:'셀·모듈·팩',cat:'배터리',def:'배터리의 3단계 구조. 셀(최소 단위)→모듈(셀 여러 개 묶음)→팩(모듈+BMS+냉각 완성품). 최근엔 모듈을 생략하고 셀을 팩에 직접 넣는 CTP(Cell to Pack)로 진화 → 공간·비용 절감.',related:['BMS','CTP','에너지밀도']},
+// ─── 수소 (9) ───
+{name:'그린수소',cat:'수소',def:'재생에너지(태양광·풍력) 전력을 이용해 물을 전기분해(수전해)해 생산하는 수소. 생산 과정에서 탄소 배출이 없어 가장 친환경적. 현재 비용이 높아 대중화 과제.',related:['수전해','연료전지','그레이수소']},
+{name:'그레이수소',cat:'수소',def:'천연가스를 개질(SMR)해 생산하는 수소. 현재 가장 많이 생산되는 수소 형태. 생산 과정에서 CO₂ 배출. 블루수소는 그레이수소+CCS.',related:['그린수소','CCUS','블루수소']},
+{name:'블루수소',cat:'수소',def:'그레이수소 생산 과정에서 나오는 CO₂를 포집(CCS)해 배출을 줄인 수소. 그린수소가 상용화되기 전까지의 징검다리 역할. 미국·중동이 천연가스 가격 경쟁력으로 유리.',related:['그레이수소','CCUS','그린수소']},
+{name:'수전해',cat:'수소',def:'물(H₂O)에 전기를 통해 수소(H₂)와 산소(O₂)로 분해하는 과정. 재생에너지 전기를 쓰면 그린수소 생산. 2030년대 경제성 확보 전망.',related:['그린수소','연료전지','PEM전해조']},
+{name:'연료전지',cat:'수소',def:'수소와 산소를 반응시켜 전기와 물을 만드는 장치. 수전해의 반대 과정. 수소차·수소버스·수소발전소의 핵심. 발전 효율 높고 배기가스 없음. 두산퓨얼셀이 발전용 국내 1위.',related:['수전해','그린수소','두산퓨얼셀']},
+{name:'암모니아 혼소',cat:'수소',def:'석탄·LNG에 암모니아(NH₃)를 섞어 태우는 발전. 암모니아는 수소보다 저장·운송이 쉬워 수소 캐리어로 주목. 한국·일본이 기존 석탄발전소 탄소 감축용으로 추진 중.',related:['수소환원제철','탄소중립','혼소발전']},
+{name:'수소환원제철',cat:'수소',def:'철광석에서 산소를 떼어낼 때 석탄 대신 수소를 쓰는 제철 기술. 철강업은 국내 산업 탄소 배출 1위 → 포스코가 HyREX 기술로 2050 탄소중립 도전. 그린수소 대량 수요처.',related:['그린수소','포스코','탄소중립']},
+{name:'액화수소',cat:'수소',def:'수소를 -253°C로 냉각해 액체로 만든 것. 부피가 기체의 1/800로 줄어 대량 운송 가능. 효성중공업이 세계 최대 액화수소 플랜트를 울산에 구축. 수소 유통 인프라의 핵심.',related:['효성중공업','수소충전소','수소 밸류체인']},
+{name:'HPS',cat:'수소',def:'Hydrogen Portfolio Standard. 수소발전 의무화 제도. 정부가 수소 발전 전력을 입찰로 구매 → 연료전지 발전 사업의 수익 기반. 두산퓨얼셀·SK에코플랜트 등이 입찰 참여.',related:['연료전지','두산퓨얼셀','RPS']},
+// ─── 정책 (12) ───
+{name:'CCUS',cat:'정책',def:'Carbon Capture, Utilization and Storage. 탄소 포집·활용·저장. 공장·발전소의 CO₂를 포집해 저장하거나 연료·화학물질로 전환. 탄소중립의 핵심 기술이지만 비용이 높음.',related:['탄소중립','블루수소','NDC']},
+{name:'CBAM',cat:'정책',def:'Carbon Border Adjustment Mechanism. 유럽 탄소국경조정제도(탄소국경세). 탄소 규제가 약한 나라에서 수입하는 제품에 탄소 비용을 부과. 2026년 본격 시행 → 한국 철강·알루미늄 직격탄. RE100 달성이 필수.',related:['RE100','탄소세','유럽그린딜']},
+{name:'ETS(배출권거래제)',cat:'정책',def:'Emissions Trading System. 온실가스 배출 허용량을 기업에 배분하고 남으면 팔고 부족하면 사는 제도. 탄소 가격을 시장에서 형성. 한국은 2015년 도입.',related:['탄소세','탄소중립','NDC']},
+{name:'RE100',cat:'정책',def:'Renewable Energy 100%. 기업이 사용하는 전력의 100%를 재생에너지로 조달하겠다는 자발적 글로벌 캠페인. 애플·구글·삼성전자 등 400개+ 기업 참여. 협력사에도 요구 → 공급망 전체로 확산.',related:['CBAM','탄소중립','PPA']},
+{name:'RPS',cat:'정책',def:'Renewable Portfolio Standard. 신재생에너지 의무공급제도. 발전사업자가 총 발전량의 일정 비율 이상을 신재생으로 공급해야 하는 의무화 제도. 한국 2012년 도입.',related:['REC','태양광','풍력']},
+{name:'REC',cat:'정책',def:'Renewable Energy Certificate. 신재생에너지 공급인증서. 신재생에너지 생산 실적을 인증서로 발행해 거래. 태양광 설치 농가·기업이 REC를 팔아 추가 수익 가능.',related:['RPS','태양광','PPA']},
+{name:'NDC',cat:'정책',def:'Nationally Determined Contribution. 국가 온실가스 감축목표. 각 나라가 파리협정에 따라 제출하는 탄소 감축 계획. 한국 NDC: 2030년까지 2018년 대비 40% 감축.',related:['탄소중립','파리협정','CCUS']},
+{name:'IRA',cat:'정책',def:'Inflation Reduction Act. 미국 인플레이션감축법. 미국 내 생산 신재생·배터리에 대규모 세액공제(AMPC) 지급. 한화솔루션·LG에너지솔루션 등 미국 공장 보유 한국 기업의 실적 지렛대. 정권에 따라 축소 리스크 존재.',related:['AMPC','한화솔루션','태양광 밸류체인']},
+{name:'탄소세',cat:'정책',def:'탄소 배출량에 직접 매기는 세금. 배출권거래제(ETS)와 함께 탄소 가격제의 양대 축. 스웨덴은 톤당 130달러 이상 부과. 탄소 비용이 오를수록 저탄소 발전(원전·신재생)의 상대 경쟁력 상승.',related:['ETS(배출권거래제)','CBAM','탄소중립']},
+{name:'K-택소노미',cat:'정책',def:'한국형 녹색분류체계. 어떤 경제활동이 친환경인지 정부가 정한 기준. LNG(한시적)·원전 포함 여부가 뜨거운 쟁점이었고 원전은 2022년 포함 확정 → 원전 투자에 녹색금융 조달 가능.',related:['녹색채권','원자력','ESG']},
+{name:'전력수급기본계획',cat:'정책',def:'정부가 2년마다 수립하는 15년 단위 전력 청사진. 발전소 건설·폐지 계획의 근거. 11차 계획(2024)에서 신규 원전 3기 + SMR 1기 반영 → 원전 생태계 부활의 신호탄.',related:['원자력','SMR','예비율']},
+{name:'CFE',cat:'정책',def:'Carbon Free Energy. 무탄소에너지. 재생에너지만 인정하는 RE100과 달리 원전·수소까지 포함하는 개념. 한국 정부가 주도하는 CF연합 → 원전 강국인 한국에 유리한 국제 표준 만들기 전략.',related:['RE100','원자력','탄소중립']},
+// ─── 시장·투자 (10) ───
+{name:'설비이용률',cat:'시장',def:'발전 설비가 이론적 최대 용량 대비 실제 얼마나 가동했는지 비율. 원자력 85~90%, 태양광 15~20%. 낮은 이유는 간헐성 때문. ESS·스마트그리드로 개선 가능.',related:['간헐성','기저발전','용량요금']},
+{name:'PPA',cat:'시장',def:'Power Purchase Agreement. 전력구매계약. 발전사업자와 구매자가 장기(10~20년)로 전력 가격과 물량을 사전에 계약. 빅테크가 데이터센터용으로 원전·신재생 PPA를 싹쓸이 중 → MS·아마존·구글 모두 참여.',related:['RE100','데이터센터전력','컨스텔레이션에너지']},
+{name:'전력도매시장',cat:'시장',def:'발전사업자들이 생산한 전기를 한전(계통운영자)에 판매하는 시장. 계통한계가격(SMP)이 기준. 신재생에너지는 RPS 의무량 외에 계통한계가격으로 판매.',related:['SMP','RPS','IPP']},
+{name:'SMP',cat:'시장',def:'System Marginal Price. 계통한계가격. 전력 도매가격의 기준으로, 그 시간에 가동된 가장 비싼 발전기(주로 LNG)의 원가로 결정. LNG 가격이 오르면 SMP 상승 → 발전사 수익 증가, 한전 부담 증가.',related:['전력도매시장','LNG','한국전력']},
+{name:'IPP',cat:'시장',def:'Independent Power Producer. 민자발전사. 한전 자회사가 아닌 민간 발전 사업자. SK E&S·GS EPS·포스코에너지 등. 미국에서는 비스트라·컨스텔레이션이 데이터센터 전력 계약으로 주가 급등.',related:['SMP','비스트라','PPA']},
+{name:'디벨로퍼',cat:'시장',def:'신재생 발전소를 기획·인허가·건설·매각하는 개발 사업자. 부동산 디벨로퍼의 에너지 버전. 완공 후 운영하거나 매각해 수익 실현. 인허가 능력과 자금 조달력이 핵심 경쟁력.',related:['PPA','REC','해상풍력']},
+{name:'용량요금(CP)',cat:'시장',def:'Capacity Payment. 발전기가 대기 상태만 유지해도 지급하는 요금. 언제든 가동 가능한 예비 전원을 확보하기 위한 보상. 간헐성 있는 신재생이 늘수록 백업 전원의 가치 상승.',related:['피크부하','예비율','SMP']},
+{name:'데이터센터전력',cat:'시장',def:'AI 데이터센터 1개 전력 = 중소도시급(100MW~1GW). 글로벌 데이터센터 전력 수요는 2030년까지 2배 이상 성장 전망. 전력 확보가 AI 경쟁력 그 자체가 됨 → 변압기·케이블·원전·냉각 전 밸류체인 수혜.',related:['AI전력슈퍼사이클','HVDC','PPA']},
+{name:'AI전력슈퍼사이클',cat:'시장',def:'AI발 전력 수요 폭증이 만든 에너지 인프라 장기 호황. 수혜 순서: ①변압기·전력기기(즉시) → ②케이블·송전망(1~2년) → ③원전·SMR·가스터빈(3~5년) → ④ESS·냉각(동반). 반도체 슈퍼사이클의 에너지 버전.',related:['변압기','데이터센터전력','SMR']},
+{name:'전기요금',cat:'시장',def:'기본요금+전력량요금(kWh당)+기후환경요금+연료비조정요금으로 구성. 한국 산업용 전기요금은 OECD 최저 수준 → 한전 적자의 근본 원인이자, 요금 정상화가 전력 생태계 투자의 전제 조건.',related:['한국전력','SMP','kW·MW·GW']},
+];
+
+// ─── STEPS 렌더링 ──────────────────────────
+function renderSteps(){
+  const c=document.getElementById('step-list');
+  c.innerHTML=STEPS.map((s,i)=>`
+    <div class="step-item" id="st${i}" onclick="toggleStep(${i})">
+      <div class="step-header">
+        <div class="step-num">${i+1}</div>
+        <div class="step-title">${s.icon} ${s.title}</div>
+        <span class="step-arrow">▶</span>
+      </div>
+      <div class="step-body"><p>${s.content}</p></div>
+    </div>
+  `).join('');
+}
+function toggleStep(i){document.getElementById('st'+i).classList.toggle('open');}
+
+// ─── 발전탭 ────────────────────────────────
+function renderGen(){
+  const g=document.getElementById('gen-grid');
+  g.innerHTML=GEN_CARDS.map(c=>`
+    <div class="gen-card" onclick="showGenModal('${c.id}')">
+      <div class="gen-icon">${c.icon}</div>
+      <div class="gen-name">${c.name}</div>
+      <div class="gen-desc">${c.share}</div>
+      <div class="gen-tags"><span class="badge badge-${c.color==='#ef4444'?'red':c.color==='#3b82f6'?'blue':c.color==='#9b59b6'?'purple':c.color==='#22c55e'?'green':c.color==='#06b6d4'?'cyan':'orange'}">${c.badge}</span></div>
+    </div>
+  `).join('');
+}
+
+function showGenModal(id){
+  const c=GEN_CARDS.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('modalTitle').textContent=c.icon+' '+c.name;
+  document.getElementById('modalTags').innerHTML=c.related.map(r=>`<span class="modal-tag">${r}</span>`).join('');
+  document.getElementById('modalBody').innerHTML=`
+    <div style="margin-bottom:12px"><strong style="color:#22c55e">장점</strong><br><span style="white-space:pre-line">${c.pros}</span></div>
+    <div style="margin-bottom:12px"><strong style="color:#ef4444">단점</strong><br><span style="white-space:pre-line">${c.cons}</span></div>
+    <div><strong style="color:#f59e0b">한국 현황</strong><br>${c.share}</div>
+  `;
+  const rel=document.getElementById('modalRelated');
+  const links=document.getElementById('modalRelLinks');
+  rel.style.display='block';
+  links.innerHTML=c.related.map(r=>`<span class="modal-tag" onclick="searchTerm('${r}')">${r}</span>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// ─── 신재생 모달 ────────────────────────────
+function showModal(id){
+  const m=MODALS[id];if(!m)return;
+  document.getElementById('modalTitle').textContent=m.title;
+  document.getElementById('modalTags').innerHTML=m.tags.map(t=>`<span class="badge badge-orange">${t}</span>`).join(' ');
+  document.getElementById('modalBody').innerHTML=m.body;
+  const rel=document.getElementById('modalRelated');
+  const links=document.getElementById('modalRelLinks');
+  if(m.rel&&m.rel.length){
+    rel.style.display='block';
+    links.innerHTML=m.rel.map(r=>`<span class="modal-tag" onclick="searchTerm('${r}')">${r}</span>`).join('');
+  } else rel.style.display='none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// ─── 기업탭 ────────────────────────────────
+function renderCompanies(){
+  const BAD_COLOR={'전력기기':'badge-blue','케이블':'badge-orange','풍력':'badge-green','배터리':'badge-purple','태양광':'badge-orange','원전':'badge-red','신재생유틸리티':'badge-green','해상풍력':'badge-green','ESS':'badge-purple','수소':'badge-cyan','유틸리티':'badge-blue','LNG':'badge-cyan','IPP':'badge-orange','원전':'badge-red'};
+  document.getElementById('domestic-list').innerHTML=COMPANIES.domestic.map((c,i)=>`
+    <div class="company-item" id="dc${i}" onclick="toggleCompany('dc${i}')">
+      <div class="company-header">
+        <div class="company-left">
+          <div class="company-flag">${c.flag}</div>
+          <div>
+            <div class="company-name">${c.name}</div>
+            <div class="company-ticker">${c.ticker}</div>
+          </div>
+        </div>
+        <span class="badge ${BAD_COLOR[c.cat]||'badge-blue'}">${c.cat}</span>
+      </div>
+      <div class="company-body">
+        <div class="company-desc">${c.desc}</div>
+        <div class="company-tags">${c.tags.map(t=>`<span class="badge badge-orange">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('global-list').innerHTML=COMPANIES.global.map((c,i)=>`
+    <div class="company-item" id="gc${i}" onclick="toggleCompany('gc${i}')">
+      <div class="company-header">
+        <div class="company-left">
+          <div class="company-flag">${c.flag}</div>
+          <div>
+            <div class="company-name">${c.name}</div>
+            <div class="company-ticker">${c.ticker}</div>
+          </div>
+        </div>
+        <span class="badge ${BAD_COLOR[c.cat]||'badge-blue'}">${c.cat}</span>
+      </div>
+      <div class="company-body">
+        <div class="company-desc">${c.desc}</div>
+        <div class="company-tags">${c.tags.map(t=>`<span class="badge badge-orange">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleCompany(id){document.getElementById(id).classList.toggle('open');}
+
+// ─── 용어탭 ────────────────────────────────
+let currentFilter='전체', currentSearch='';
+
+function renderTerms(){
+  const list=document.getElementById('termList');
+  const q=currentSearch.toLowerCase();
+  const filtered=TERMS.filter(t=>{
+    const mc=currentFilter==='전체'||t.cat===currentFilter;
+    const mq=!q||t.name.toLowerCase().includes(q)||t.def.toLowerCase().includes(q);
+    return mc&&mq;
+  });
+  if(!filtered.length){list.innerHTML='<div class="empty">😥 검색 결과가 없어요</div>';return;}
+  const catColor={'전력기초':'badge-blue','신재생':'badge-green','배터리':'badge-purple','수소':'badge-cyan','정책':'badge-red','시장':'badge-orange'};
+  list.innerHTML=filtered.map((t,i)=>`
+    <div class="term-item" id="term${i}" onclick="toggleTerm(${i},'${t.name}')">
+      <div class="term-header">
+        <div class="term-name">${t.name}</div>
+        <span class="badge ${catColor[t.cat]||'badge-blue'}">${t.cat}</span>
+      </div>
+      <div class="term-body">
+        <div class="term-def">${t.def}</div>
+        ${t.related?`<div style="margin-top:8px;font-size:12px;color:#f59e0b">🔗 ${t.related.join(' · ')}</div>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleTerm(i,name){document.getElementById('term'+i).classList.toggle('open');}
+function setFilter(cat){currentFilter=cat;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.textContent===cat));renderTerms();}
+function filterTerms(){currentSearch=document.getElementById('searchBox').value;renderTerms();}
+function searchTerm(term){
+  closeModal();switchTab('terms');
+  document.getElementById('searchBox').value=term;
+  currentSearch=term;renderTerms();
+}
+
+// ─── 모달 ──────────────────────────────────
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
+
+// ─── 탭 전환 ───────────────────────────────
+const TAB_MAP={today:0,basic:1,gen:2,renew:3,company:4,terms:5};
+function switchTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.tab')[TAB_MAP[id]].classList.add('active');
+}
+
+// ─── 투데이 (52주 신고가 + 뉴스) ─────────────
+const CAT_BADGE={'전력기기':'badge-blue','케이블':'badge-orange','원전':'badge-red','풍력':'badge-green','태양광':'badge-orange','배터리':'badge-purple','수소':'badge-cyan','유틸리티':'badge-blue','LNG':'badge-cyan','ESS':'badge-purple','정책':'badge-red','시장':'badge-orange','신재생':'badge-green','해상풍력':'badge-green'};
+let H52=null,NEWSD=null;
+
+async function loadDaily(){
+  const w=document.getElementById('todayWrap');
+  try{
+    const bust='?v='+Date.now();
+    const [h,n]=await Promise.all([
+      fetch('mvp.json'+bust).then(r=>{if(!r.ok)throw 0;return r.json()}),
+      fetch('news.json'+bust).then(r=>{if(!r.ok)throw 0;return r.json()})
+    ]);
+    H52=h;NEWSD=n;renderToday();
+  }catch(e){
+    w.innerHTML='<div class="empty">📡 mvp.json · news.json을 찾을 수 없어요<br><span style="font-size:12px;line-height:1.8">레포에 두 JSON 파일을 업로드하면<br>MVP 에너지 종목과 뉴스가 자동 표시됩니다</span></div>';
+  }
+}
+
+function renderToday(){
+  const w=document.getElementById('todayWrap');
+  const days=((H52&&H52.days)||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const cnt={};
+  days.forEach(d=>(d.stocks||[]).forEach(s=>{cnt[s.name]=(cnt[s.name]||0)+1}));
+  const rank=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxC=rank.length?rank[0][1]:1;
+  let html='';
+  if(days.length){
+    html+='<div class="sec-title">🔥 MVP 에너지 종목 — '+days[0].date+'</div>';
+    html+=days.map((d,di)=>`
+      <div class="step-item${di===0?' open':''}" id="hd${di}" onclick="toggleDay('hd${di}')">
+        <div class="step-header">
+          <div class="step-num" style="width:auto;border-radius:8px;padding:0 8px;font-size:11px">${d.date.slice(5)}</div>
+          <div class="step-title">에너지 ${(d.stocks||[]).length}개${d.total?' / MVP '+d.total+'선':''}</div>
+          <span class="step-arrow">▶</span>
+        </div>
+        <div class="step-body">
+          ${(d.stocks||[]).map(s=>`
+            <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <div style="flex:1;min-width:120px"><span style="font-size:14px;font-weight:700">${s.name}</span> <span style="font-size:11px;color:var(--text3)">${s.ticker||''}</span></div>
+                ${s.rank?`<span class="badge badge-orange">MVP ${s.rank}위·${s.mvp}점</span>`:''}
+                <span class="badge ${CAT_BADGE[s.cat]||'badge-blue'}">${s.cat||''}</span>
+              </div>
+              ${s.note?`<div style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5">💬 ${s.note}</div>`:''}
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+  if(rank.length){
+    html+='<div class="sec-title">🏆 에너지 MVP 누적 랭킹 ('+days.length+'일치)</div><div class="card">';
+    html+=rank.map(([n,c],i)=>`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${i===rank.length-1?0:12}px">
+        <div style="width:22px;font-size:13px;font-weight:800;color:${i<3?'#f59e0b':'var(--text3)'}">${i+1}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">${n} <span style="color:var(--text3);font-weight:500">${c}회</span></div>
+          <div style="height:6px;background:var(--surface2);border-radius:3px"><div style="height:100%;width:${Math.round(c/maxC*100)}%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:3px"></div></div>
+        </div>
+      </div>`).join('');
+    html+='</div>';
+  }
+  const items=((NEWSD&&NEWSD.items)||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(items.length){
+    html+='<div class="sec-title">📰 에너지 뉴스 ('+items.length+'건 누적)</div>';
+    let lastDate='';
+    items.slice(0,30).forEach(it=>{
+      if(it.date!==lastDate){lastDate=it.date;html+='<div style="font-size:11px;color:var(--text3);padding:8px 20px 4px">📅 '+it.date+'</div>';}
+      html+=`<div class="card" style="margin-bottom:8px">
+        <div class="card-title" style="font-size:14px;line-height:1.4">${it.invest?'💰 ':''}${it.title}${it.cat?' <span class="badge '+(CAT_BADGE[it.cat]||'badge-blue')+'">'+it.cat+'</span>':''}</div>
+        <div class="card-desc" style="font-size:12px">${it.summary||''}</div>
+      </div>`;
+    });
+    if(items.length>30)html+='<div class="empty" style="padding:12px">최근 30건만 표시 (전체 '+items.length+'건)</div>';
+  }
+  if(!html)html='<div class="empty">아직 데이터가 없어요<br><span style="font-size:12px">JSON 파일에 데이터를 추가해주세요</span></div>';
+  w.innerHTML=html;
+}
+function toggleDay(id){document.getElementById(id).classList.toggle('open');}
+
+// ─── INIT ───────────────────────────────────
+renderSteps();renderGen();renderCompanies();renderTerms();loadDaily();
+</script>
+</body>
+</html>
