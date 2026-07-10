@@ -82,6 +82,10 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','N
 .term-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
 .term-def{font-size:13px;color:var(--text2);line-height:1.7;margin-top:10px}
 .term-item.open .term-body{display:block}
+.term-grid{display:flex;flex-wrap:wrap;gap:8px;padding:4px 16px 24px}
+.term-chip{background:var(--surface);border:1px solid var(--border);border-left-width:3px;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.term-chip:active{opacity:.6}
+.count-info{font-size:11px;color:var(--text3);padding:0 20px 8px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:150;display:none;align-items:flex-end}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:24px;-webkit-overflow-scrolling:touch}
@@ -281,10 +285,39 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','N
 
 <!-- ═══ 기업탭 ═══ -->
 <div class="section" id="sec-company">
-  <div class="sec-title">🇰🇷 국내 에너지 기업</div>
-  <div class="company-list" id="domestic-list"></div>
-  <div class="sec-title">🌍 글로벌 에너지 기업</div>
-  <div class="company-list" id="global-list"></div>
+  <div class="search-wrap" style="top:117px">
+    <input class="search-box" id="coSearch" placeholder="🔍 기업 검색 (이름·설명·태그)..." oninput="renderCompanies()">
+  </div>
+  <div class="filter-wrap">
+    <button class="filter-btn co-region active" onclick="setCoRegion('전체',this)">전체</button>
+    <button class="filter-btn co-region" onclick="setCoRegion('국내',this)">🇰🇷 국내</button>
+    <button class="filter-btn co-region" onclick="setCoRegion('글로벌',this)">🌍 글로벌</button>
+  </div>
+  <div class="filter-wrap">
+    <button class="filter-btn co-cat active" onclick="setCoCat('전체',this)">전체</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('전력기기',this)">전력기기</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('케이블',this)">케이블</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('원전',this)">원전</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('풍력',this)">풍력</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('태양광',this)">태양광</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('배터리',this)">배터리</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('수소',this)">수소</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('ESS',this)">ESS</button>
+    <button class="filter-btn co-cat" onclick="setCoCat('유틸리티',this)">유틸리티</button>
+  </div>
+  <div class="company-list" id="company-list"></div>
+  <div class="sec-title">📊 재생에너지 ETF</div>
+  <div class="card">
+    <div class="card-title">🌱 섹터 온도계 — 주요 ETF 5종</div>
+    <div class="card-desc">
+      <span class="badge badge-green">ICLN</span> 글로벌 클린에너지 대표 — 섹터 전체 분위기 지표<br><br>
+      <span class="badge badge-orange">TAN</span> 태양광 전문 — 태양광 밸류체인 집중<br><br>
+      <span class="badge badge-blue">FAN</span> 풍력 전문 — 베스타스·오스테드 등 편입<br><br>
+      <span class="badge badge-cyan">QCLN</span> 미국 클린에너지 — 전기차·배터리 포함<br><br>
+      <span class="badge badge-purple">ACES</span> 미국 클린에너지 — 순수 미국 기업 중심<br><br>
+      💡 개별 종목 판단이 어려울 때, ETF 등락으로 섹터의 큰 흐름부터 읽는 습관 — 개별주가 ETF와 반대로 움직이면 그 종목만의 이유가 있다는 신호예요.
+    </div>
+  </div>
 </div>
 
 <!-- ═══ 용어탭 ═══ -->
@@ -293,13 +326,13 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','N
     <input class="search-box" id="searchBox" placeholder="🔍 에너지·전력 용어 검색..." oninput="filterTerms()">
   </div>
   <div class="filter-wrap" id="filterWrap">
-    <button class="filter-btn active" onclick="setFilter('전체')">전체</button>
-    <button class="filter-btn" onclick="setFilter('전력기초')">전력기초</button>
-    <button class="filter-btn" onclick="setFilter('신재생')">신재생</button>
-    <button class="filter-btn" onclick="setFilter('배터리')">배터리</button>
-    <button class="filter-btn" onclick="setFilter('수소')">수소</button>
-    <button class="filter-btn" onclick="setFilter('정책')">정책·제도</button>
-    <button class="filter-btn" onclick="setFilter('시장')">시장·투자</button>
+    <button class="filter-btn active" onclick="setFilter('전체',this)">전체</button>
+    <button class="filter-btn" onclick="setFilter('전력기초',this)">전력기초</button>
+    <button class="filter-btn" onclick="setFilter('신재생',this)">신재생</button>
+    <button class="filter-btn" onclick="setFilter('배터리',this)">배터리</button>
+    <button class="filter-btn" onclick="setFilter('수소',this)">수소</button>
+    <button class="filter-btn" onclick="setFilter('정책',this)">정책·제도</button>
+    <button class="filter-btn" onclick="setFilter('시장',this)">시장·투자</button>
   </div>
   <div class="term-list" id="termList"></div>
 </div>
@@ -514,6 +547,9 @@ const COMPANIES={
     {flag:'🇰🇷',name:'한화솔루션',ticker:'009830',cat:'태양광',color:'#f59e0b',
      desc:'한화큐셀 운영. 태양광 모듈 미국 주거용 점유율 1위. 미국 내 잉곳~모듈 풀 밸류체인(솔라허브) 구축. 💰 IRA 세액공제 최대 수혜 — 정책 리스크와 모듈 가격이 양날의 검.',
      tags:['태양광모듈','솔라허브','IRA']},
+    {flag:'🇰🇷',name:'OCI홀딩스',ticker:'010060',cat:'태양광',color:'#f59e0b',
+     desc:'태양광용 폴리실리콘 국내 유일 생산. 말레이시아 공장의 저탄소·비중국 폴리실리콘으로 미국 시장 공략. 💰 미국의 중국산 배제(UFLPA)가 강해질수록 비중국 폴리실리콘의 희소가치 상승.',
+     tags:['폴리실리콘','비중국공급망','말레이시아']},
     {flag:'🇰🇷',name:'HD현대에너지솔루션',ticker:'322000',cat:'태양광',color:'#f59e0b',
      desc:'태양광 모듈·인버터 제조. HD현대 그룹 에너지 계열사. 국내외 신재생 사업 확대. 💰 국내 태양광 순수 플레이어 — 국내 보급 정책에 민감.',
      tags:['태양광','인버터','HD현대']},
@@ -570,6 +606,27 @@ const COMPANIES={
     {flag:'🇩🇪',name:'지멘스에너지',ticker:'ENR.DE',cat:'전력기기',color:'#3b82f6',
      desc:'가스터빈·변압기·해상풍력(지멘스가메사) 종합 에너지 기업. 💰 풍력 부문 부실을 그리드(전력망) 부문 호황이 상쇄 — 그리드 수주잔고 역대 최고.',
      tags:['가스터빈','그리드호황','해상풍력']},
+    {flag:'🇺🇸',name:'넥스트래커',ticker:'NXT',cat:'태양광',color:'#f59e0b',
+     desc:'태양광 트래커(해를 따라 패널 각도를 조절하는 구조물) 세계 1위. 발전량 최대 25% 향상. 💰 유틸리티급 대형 태양광의 필수 장비 — 모듈 가격 하락과 무관하게 돈 버는 포지션.',
+     tags:['트래커세계1위','유틸리티태양광']},
+    {flag:'🇨🇦',name:'캐나디안솔라',ticker:'CSIQ',cat:'태양광',color:'#f59e0b',
+     desc:'태양광 모듈 글로벌 톱5 + ESS(e-STORAGE) 사업 확장. 💰 모듈 저마진을 ESS 고성장으로 방어하는 전환 스토리 — ESS 수주잔고 추이가 핵심.',
+     tags:['모듈톱5','e-STORAGE','ESS전환']},
+    {flag:'🇨🇦',name:'브룩필드 리뉴어블',ticker:'BEP',cat:'신재생유틸리티',color:'#22c55e',
+     desc:'글로벌 최대 순수 재생에너지 운용사. 수력 중심 + 태양광·풍력·ESS 포트폴리오. MS와 10.5GW 초대형 PPA 체결. 💰 배당수익률 4~5%대 — 재생에너지판 배당 인컴 자산.',
+     tags:['글로벌운용사','수력','배당','MS계약']},
+    {flag:'🇮🇱',name:'솔라엣지',ticker:'SEDG',cat:'태양광',color:'#f59e0b',
+     desc:'태양광 인버터·파워옵티마이저 강자. 유럽 주거용 태양광 비중 높음. 💰 유럽 수요 침체로 급락 후 재고 소진이 회복의 관건 — 인버터 업황의 바로미터.',
+     tags:['인버터','옵티마이저','유럽비중']},
+    {flag:'🇺🇸',name:'스템(Stem)',ticker:'STEM',cat:'ESS',color:'#9b59b6',
+     desc:'AI 기반 ESS 운영 소프트웨어 Athena 보유. 전력 가격 예측해 충·방전 자동 최적화. 💰 SK이터닉스의 AI ESS와 같은 콘셉트의 미국 원조 격 — ESS의 두뇌를 파는 소프트웨어 플레이.',
+     tags:['AI-ESS','Athena','소프트웨어']},
+    {flag:'🇺🇸',name:'퓨얼셀에너지',ticker:'FCEL',cat:'수소',color:'#06b6d4',
+     desc:'발전용 연료전지 전문(용융탄산염 방식). 데이터센터·산업용 현장 발전 공략. 💰 두산퓨얼셀의 미국 카운터파트 — 만성 적자라 뉴스 따라 변동성 극심.',
+     tags:['발전용연료전지','고변동성']},
+    {flag:'🇨🇦',name:'발라드파워',ticker:'BLDP',cat:'수소',color:'#06b6d4',
+     desc:'PEM 연료전지 선구자. 수소 버스·트럭·철도·선박 등 모빌리티 특화. 💰 수소 모빌리티 대중화 속도에 베팅하는 장기 테마주 — 상용화 전 단계.',
+     tags:['PEM연료전지','수소모빌리티']},
   ]
 };
 
@@ -721,28 +778,30 @@ function showModal(id){
 }
 
 // ─── 기업탭 ────────────────────────────────
+const BAD_COLOR={'전력기기':'badge-blue','케이블':'badge-orange','풍력':'badge-green','배터리':'badge-purple','태양광':'badge-orange','원전':'badge-red','신재생유틸리티':'badge-green','해상풍력':'badge-green','ESS':'badge-purple','수소':'badge-cyan','유틸리티':'badge-blue','LNG':'badge-cyan','IPP':'badge-orange','발전엔진':'badge-blue'};
+let coRegion='전체',coCat='전체';
+
+function coBucket(cat){
+  if(cat==='해상풍력')return '풍력';
+  if(['신재생유틸리티','유틸리티','LNG','IPP','발전엔진'].includes(cat))return '유틸리티';
+  return cat;
+}
+function setCoRegion(v,btn){coRegion=v;document.querySelectorAll('.co-region').forEach(b=>b.classList.toggle('active',b===btn));renderCompanies();}
+function setCoCat(v,btn){coCat=v;document.querySelectorAll('.co-cat').forEach(b=>b.classList.toggle('active',b===btn));renderCompanies();}
+
 function renderCompanies(){
-  const BAD_COLOR={'전력기기':'badge-blue','케이블':'badge-orange','풍력':'badge-green','배터리':'badge-purple','태양광':'badge-orange','원전':'badge-red','신재생유틸리티':'badge-green','해상풍력':'badge-green','ESS':'badge-purple','수소':'badge-cyan','유틸리티':'badge-blue','LNG':'badge-cyan','IPP':'badge-orange','원전':'badge-red'};
-  document.getElementById('domestic-list').innerHTML=COMPANIES.domestic.map((c,i)=>`
-    <div class="company-item" id="dc${i}" onclick="toggleCompany('dc${i}')">
-      <div class="company-header">
-        <div class="company-left">
-          <div class="company-flag">${c.flag}</div>
-          <div>
-            <div class="company-name">${c.name}</div>
-            <div class="company-ticker">${c.ticker}</div>
-          </div>
-        </div>
-        <span class="badge ${BAD_COLOR[c.cat]||'badge-blue'}">${c.cat}</span>
-      </div>
-      <div class="company-body">
-        <div class="company-desc">${c.desc}</div>
-        <div class="company-tags">${c.tags.map(t=>`<span class="badge badge-orange">${t}</span>`).join('')}</div>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('global-list').innerHTML=COMPANIES.global.map((c,i)=>`
-    <div class="company-item" id="gc${i}" onclick="toggleCompany('gc${i}')">
+  const q=(document.getElementById('coSearch').value||'').toLowerCase();
+  const all=[...COMPANIES.domestic.map(c=>({...c,_r:'국내'})),...COMPANIES.global.map(c=>({...c,_r:'글로벌'}))];
+  const f=all.filter(c=>{
+    if(coRegion!=='전체'&&c._r!==coRegion)return false;
+    if(coCat!=='전체'&&coBucket(c.cat)!==coCat)return false;
+    if(q&&!(c.name.toLowerCase().includes(q)||c.desc.toLowerCase().includes(q)||c.tags.join(' ').toLowerCase().includes(q)))return false;
+    return true;
+  });
+  const el=document.getElementById('company-list');
+  if(!f.length){el.innerHTML='<div class="empty">😥 검색 결과가 없어요</div>';return;}
+  el.innerHTML='<div class="count-info">'+f.length+'개 / 전체 '+all.length+'개 · 탭하면 상세 설명이 열려요</div>'+f.map((c,i)=>`
+    <div class="company-item" id="co${i}" onclick="toggleCompany('co${i}')">
       <div class="company-header">
         <div class="company-left">
           <div class="company-flag">${c.flag}</div>
@@ -764,6 +823,8 @@ function toggleCompany(id){document.getElementById(id).classList.toggle('open');
 
 // ─── 용어탭 ────────────────────────────────
 let currentFilter='전체', currentSearch='';
+const CAT_LINE={'전력기초':'#3b82f6','신재생':'#22c55e','배터리':'#a855f7','수소':'#06b6d4','정책':'#ef4444','시장':'#f59e0b'};
+const CAT_BADGE2={'전력기초':'badge-blue','신재생':'badge-green','배터리':'badge-purple','수소':'badge-cyan','정책':'badge-red','시장':'badge-orange'};
 
 function renderTerms(){
   const list=document.getElementById('termList');
@@ -774,23 +835,27 @@ function renderTerms(){
     return mc&&mq;
   });
   if(!filtered.length){list.innerHTML='<div class="empty">😥 검색 결과가 없어요</div>';return;}
-  const catColor={'전력기초':'badge-blue','신재생':'badge-green','배터리':'badge-purple','수소':'badge-cyan','정책':'badge-red','시장':'badge-orange'};
-  list.innerHTML=filtered.map((t,i)=>`
-    <div class="term-item" id="term${i}" onclick="toggleTerm(${i},'${t.name}')">
-      <div class="term-header">
-        <div class="term-name">${t.name}</div>
-        <span class="badge ${catColor[t.cat]||'badge-blue'}">${t.cat}</span>
-      </div>
-      <div class="term-body">
-        <div class="term-def">${t.def}</div>
-        ${t.related?`<div style="margin-top:8px;font-size:12px;color:#f59e0b">🔗 ${t.related.join(' · ')}</div>`:''}
-      </div>
-    </div>
-  `).join('');
+  list.innerHTML='<div class="count-info">'+filtered.length+'개 / 전체 '+TERMS.length+'개 · 탭하면 설명이 열려요</div><div class="term-grid">'+
+    filtered.map(t=>`<div class="term-chip" style="border-left-color:${CAT_LINE[t.cat]||'#3b82f6'}" onclick="showTermModal('${t.name}')">${t.name}</div>`).join('')+
+    '</div>';
 }
 
-function toggleTerm(i,name){document.getElementById('term'+i).classList.toggle('open');}
-function setFilter(cat){currentFilter=cat;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.textContent===cat));renderTerms();}
+function showTermModal(name){
+  const t=TERMS.find(x=>x.name===name);
+  if(!t)return;
+  document.getElementById('modalTitle').textContent='📖 '+t.name;
+  document.getElementById('modalTags').innerHTML='<span class="badge '+(CAT_BADGE2[t.cat]||'badge-blue')+'">'+t.cat+'</span>';
+  document.getElementById('modalBody').innerHTML=t.def;
+  const rel=document.getElementById('modalRelated');
+  const links=document.getElementById('modalRelLinks');
+  if(t.related&&t.related.length){
+    rel.style.display='block';
+    links.innerHTML=t.related.map(r=>`<span class="modal-tag" onclick="searchTerm('${r}')">${r}</span>`).join('');
+  } else rel.style.display='none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function setFilter(cat,btn){currentFilter=cat;document.querySelectorAll('#filterWrap .filter-btn').forEach(b=>b.classList.toggle('active',b===btn));renderTerms();}
 function filterTerms(){currentSearch=document.getElementById('searchBox').value;renderTerms();}
 function searchTerm(term){
   closeModal();switchTab('terms');
